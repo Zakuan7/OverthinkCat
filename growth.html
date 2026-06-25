@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purrfect Peace – Growth</title>
+
+    <!-- Google Fonts: Fredoka — matches index.html & breathe.html exactly -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+           1. DESIGN SYSTEM & CSS CUSTOM PROPERTIES
+              Mirrors the index.html token system for visual consistency.
+           ============================================================ */
+        :root {
+            /* Core palette — shared across all app pages */
+            --bg-sky:          #9cd6f7;
+            --card-brown:      #7c533c;
+            --btn-teal:        #007676;
+            --btn-teal-dark:   #005050;
+            --btn-cream:       #f4edd2;
+            --btn-cream-dark:  #ded5b3;
+            --btn-red:         #ba1a1a;
+            --btn-red-dark:    #8c1111;
+            --text-dark:       #422312;
+            --text-muted:      #4a6b82;
+
+            /* Bingo-specific accent colours */
+            --tile-empty:      #fff8e1;
+            --tile-filled:     #ffffff;
+            --tile-done:       #80cbc4;
+            --tile-done-dark:  #4db6ac;
+            --bingo-letter:    #ffe082;
+            --bingo-letter-lit:#ffffff;
+            --countdown-red:   #c62828;
+
+            /* Shared tokens */
+            --font-friendly:   'Fredoka', 'Nunito', system-ui, sans-serif;
+            --radius-card:     32px;
+            --radius-btn:      24px;
+            --shadow-card:     0 8px 16px rgba(0,0,0,0.10);
+            --shadow-btn:      0 4px 0;
+        }
+
+        /* ============================================================
+           2. RESET & BASE
+           ============================================================ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-friendly);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #e0f2fe;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        /* ============================================================
+           3. PHONE CONTAINER — identical dimensions to index.html
+           ============================================================ */
+        .phone-container {
+            width: 100%;
+            max-width: 412px;
+            height: 90vh;
+            max-height: 892px;
+            background: linear-gradient(to bottom, var(--bg-sky), #bfe3f7);
+            border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+           4. APP HEADER — identical to index.html
+           ============================================================ */
+        .app-header {
+            padding: 20px 24px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0d4f75;
+        }
+
+        /* Cat avatar with ears — identical to index.html */
+        .avatar-placeholder {
+            width: 36px;
+            height: 36px;
+            background-color: #ffb84d;
+            border-radius: 50%;
+            border: 2px solid white;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .avatar-placeholder::before,
+        .avatar-placeholder::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            width: 0; height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 8px solid #ffb84d;
+        }
+        .avatar-placeholder::before { left: 2px;  transform: rotate(-20deg); }
+        .avatar-placeholder::after  { right: 2px; transform: rotate(20deg);  }
+
+        .settings-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        /* ============================================================
+           5. PERSISTENT STATS BANNER — identical to index.html
+           ============================================================ */
+        .stats-banner {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-weight: 700;
+            padding: 8px;
+            background-color: rgba(255,255,255,0.4);
+            border-radius: 12px;
+            margin: 0 16px;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+           6. SCREEN CONTENT WRAPPER
+              Clips child screens for slide animations.
+           ============================================================ */
+        .screen-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ============================================================
+           7. VIEW SCREENS & TRANSITION ANIMATIONS
+              Each view = one "page" inside the phone frame.
+              Transitions mirror breathe.html for consistency.
+           ============================================================ */
+        .view-screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            padding: 16px;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+
+        .view-screen.active {
+            display: flex;
+        }
+
+        /* Forward navigation — slide in from the right */
+        .view-screen.slide-in-right {
+            animation: slideInRight 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+        }
+
+        /* Backward navigation — slide in from the left */
+        .view-screen.slide-in-left {
+            animation: slideInLeft 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+        }
+
+        /* Reward/completion screens — scale up from centre */
+        .view-screen.fade-scale-in {
+            animation: fadeScaleIn 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to   { opacity: 1; transform: translateX(0);   }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to   { opacity: 1; transform: translateX(0);    }
+        }
+
+        @keyframes fadeScaleIn {
+            from { opacity: 0; transform: scale(0.88); }
+            to   { opacity: 1; transform: scale(1);    }
+        }
+
+        /* ============================================================
+           8. CARDS — matches index.html .main-card style exactly
+           ============================================================ */
+        .main-card {
+            background-color: var(--card-brown);
+            border-radius: var(--radius-card);
+            padding: 24px;
+            color: #ffffff;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .main-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .main-card p {
+            font-size: 1rem;
+            opacity: 0.9;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        /* Cream card variant (used for date input) */
+        .card-cream {
+            background-color: var(--btn-cream);
+            border-radius: var(--radius-card);
+            padding: 24px;
+            color: var(--text-dark);
+            box-shadow: var(--shadow-card);
+            text-align: center;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .card-cream h2 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        /* White card variant (reward popups) */
+        .card-white {
+            background: #ffffff;
+            border-radius: var(--radius-card);
+            padding: 28px 24px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+            width: 100%;
+        }
+
+        .card-white h2 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .card-white p {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        /* ============================================================
+           9. INPUTS — matches index.html .app-input style
+           ============================================================ */
+        .app-input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 16px;
+            border: none;
+            background-color: #ffffff;
+            color: var(--text-dark);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            outline: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        .app-input[type="date"] {
+            cursor: pointer;
+        }
+
+        /* ============================================================
+           10. SQUISHY 3D BUTTONS — identical to index.html
+           ============================================================ */
+        .btn-3d {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 14px 24px;
+            border-radius: var(--radius-btn);
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            transform: translateY(-4px);
+            letter-spacing: 0.3px;
+        }
+
+        .btn-3d:active { transform: translateY(0); }
+
+        .btn-teal {
+            background-color: var(--btn-teal);
+            color: white;
+            box-shadow: var(--shadow-btn) var(--btn-teal-dark), 0 8px 12px rgba(0,0,0,0.15);
+        }
+        .btn-teal:active { box-shadow: 0 0 0 var(--btn-teal-dark), 0 2px 4px rgba(0,0,0,0.15); }
+
+        .btn-cream {
+            background-color: var(--btn-cream);
+            color: var(--text-dark);
+            box-shadow: var(--shadow-btn) var(--btn-cream-dark), 0 8px 12px rgba(0,0,0,0.15);
+            margin-bottom: 12px;
+        }
+        .btn-cream:active { box-shadow: 0 0 0 var(--btn-cream-dark), 0 2px 4px rgba(0,0,0,0.15); }
+
+        .btn-red {
+            background-color: var(--btn-red);
+            color: white;
+            box-shadow: var(--shadow-btn) var(--btn-red-dark), 0 8px 12px rgba(0,0,0,0.15);
+        }
+        .btn-red:active { box-shadow: 0 0 0 var(--btn-red-dark), 0 2px 4px rgba(0,0,0,0.15); }
+
+        .btn-neutral {
+            background-color: #e0e0e0;
+            color: var(--text-dark);
+            box-shadow: 0 4px 0 #bdbdbd, 0 8px 12px rgba(0,0,0,0.10);
+        }
+        .btn-neutral:active { box-shadow: 0 0 0 #bdbdbd; }
+
+        /* Half-width buttons in a row */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+        .btn-row .btn-3d { margin-bottom: 0; }
+
+        /* ============================================================
+           11. BINGO BOARD STYLES
+           ============================================================ */
+
+        /* Goal title + countdown above the board */
+        .bingo-meta {
+            text-align: center;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .bingo-meta h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.3;
+        }
+
+        .countdown-tag {
+            color: var(--countdown-red);
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        /* Brown wrapper card for the grid */
+        .bingo-board-wrapper {
+            background-color: var(--card-brown);
+            border-radius: 24px;
+            padding: 14px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-card);
+        }
+
+        /* B-I-N-G-O letter row */
+        .bingo-letters {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            text-align: center;
+            font-weight: 900;
+            font-size: 1.4rem;
+            color: var(--bingo-letter);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .bingo-letter-cell {
+            transition: color 0.4s ease, text-shadow 0.4s ease;
+        }
+
+        .bingo-letter-cell.marked {
+            color: var(--bingo-letter-lit);
+            text-shadow: 0 0 8px #fff, 0 0 18px var(--tile-done);
+        }
+
+        /* 5×5 tile grid */
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .bingo-tile {
+            aspect-ratio: 1;
+            background: var(--tile-empty);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4px;
+            text-align: center;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            word-break: break-word;
+            border: 1.5px solid #d7ccc8;
+            transition: background 0.25s ease, color 0.25s ease,
+                        transform 0.1s ease, border-color 0.25s ease;
+            line-height: 1.2;
+        }
+
+        .bingo-tile:active { transform: scale(0.94); }
+
+        .bingo-tile .paw-icon {
+            font-size: 1rem;
+            margin-bottom: 2px;
+            opacity: 0.5;
+        }
+
+        /* Tile has text set */
+        .bingo-tile.active-set {
+            background: var(--tile-filled);
+            border-color: #bcaaa4;
+            color: var(--text-dark);
+        }
+
+        /* Tile marked as done */
+        .bingo-tile.done {
+            background: var(--tile-done) !important;
+            border-color: var(--tile-done-dark) !important;
+            color: white;
+            text-decoration: line-through;
+        }
+
+        /* ============================================================
+           12. MOTIVATIONAL QUOTE BOX
+           ============================================================ */
+        .quote-box {
+            background: rgba(255,255,255,0.55);
+            border-radius: 18px;
+            padding: 12px 14px;
+            font-size: 0.82rem;
+            font-style: italic;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            border-left: 4px solid var(--btn-teal);
+            color: var(--text-dark);
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        /* ============================================================
+           13. MODAL OVERLAY & SHEETS
+              Bottom sheet for adding small goals.
+              Centre popup for reward alerts.
+           ============================================================ */
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.42);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 100;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        /* Bottom sheet — slides up on open */
+        .bottom-sheet {
+            width: 100%;
+            background: #ffffff;
+            border-radius: 28px 28px 0 0;
+            padding: 22px 20px 28px;
+            box-shadow: 0 -6px 20px rgba(0,0,0,0.12);
+            transform: translateY(100%);
+            transition: transform 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+            display: none;
+        }
+
+        .modal-overlay.active .bottom-sheet {
+            transform: translateY(0);
+        }
+
+        .bottom-sheet h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: var(--text-dark);
+        }
+
+        /* Centre popup alert — scales in */
+        .popup-alert {
+            background: var(--btn-cream);
+            width: 88%;
+            margin: auto;
+            border-radius: 28px;
+            padding: 28px 24px;
+            text-align: center;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.22);
+            border: 3px solid var(--card-brown);
+            display: none;
+            animation: fadeScaleIn 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+        }
+
+        /* Graphic emoji box inside popup */
+        .alert-graphic-box {
+            width: 90px;
+            height: 90px;
+            background: #fff;
+            border-radius: 20px;
+            margin: 0 auto 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.8rem;
+            border: 2px dashed #c8b89a;
+        }
+
+        .popup-alert h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .popup-alert p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        /* ============================================================
+           14. CONFETTI CANVAS — sits above content, no pointer events
+           ============================================================ */
+        #confetti-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+            border-radius: 40px;
+        }
+
+        /* ============================================================
+           15. BOTTOM NAVIGATION — identical to index.html
+           ============================================================ */
+        .bottom-nav {
+            height: 72px;
+            background-color: #f7f3e3;
+            border-top: 2px solid #eadebe;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+            flex-shrink: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #8c8269;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active  { color: #0a6999; }
+
+        /* Disabled = pages not yet built */
+        .nav-item.disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .nav-icon {
+            font-size: 1.4rem;
+            margin-bottom: 2px;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- ================================================================
+     PHONE FRAME
+     ================================================================ -->
+<div class="phone-container">
+
+    <!-- Confetti canvas — floats above all content -->
+    <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+    <!-- ── APP HEADER ─────────────────────────────────────────── -->
+    <header class="app-header">
+        <div class="brand">
+            <div class="avatar-placeholder" aria-hidden="true"></div>
+            <span>OverthinkCat</span>
+        </div>
+        <div class="settings-btn" role="button" aria-label="Settings">⚙️</div>
+    </header>
+
+    <!-- ── PERSISTENT STATS BANNER ────────────────────────────── -->
+    <div class="stats-banner" aria-live="polite">
+        <span>🐱 Pets Unlocked: <span id="stat-pets">0</span></span>
+        <span>🍼 Cat Food: <span id="stat-food">0</span></span>
+    </div>
+
+    <!-- ================================================================
+         SCREEN CONTENT (all view-screens stack here)
+         ================================================================ -->
+    <div class="screen-content">
+
+        <!-- ── VIEW 1: ENTRY / LINK FROM HOME ──────────────────── -->
+        <!--
+            Minimal landing that mirrors index.html's quick-access feel.
+            Existing logic: navigates to view-setup on Continue.
+        -->
+        <main id="view-home" class="view-screen active" aria-label="Growth home">
+            <div class="main-card" style="margin-top: auto; margin-bottom: auto;">
+                <h2>🌱 Ready to grow?</h2>
+                <p>Set a big goal and break it down into a bingo board of small wins.</p>
+                <button class="btn-3d btn-teal" onclick="navigateTo('view-setup', 'right')">
+                    Let's Set a Goal ➔
+                </button>
+            </div>
+        </main>
+
+        <!-- ── VIEW 2: GOAL SETUP ──────────────────────────────── -->
+        <!--
+            User types their big goal + picks a target date.
+            Logic unchanged from original.
+        -->
+        <main id="view-setup" class="view-screen" aria-label="Set your goal">
+
+            <div class="main-card">
+                <h2>🎯 Set your Big Goal</h2>
+                <input
+                    type="text"
+                    id="big-goal-input"
+                    class="app-input"
+                    placeholder="e.g. Intern in Tech Company"
+                    value="Intern in Tech Company"
+                    aria-label="Big goal"
+                >
+            </div>
+
+            <div class="card-cream">
+                <h2>📅 Target Date</h2>
+                <input
+                    type="date"
+                    id="target-date-input"
+                    class="app-input"
+                    aria-label="Target date"
+                >
+                <button class="btn-3d btn-teal" onclick="saveBigGoalSetup()">
+                    Save Goal ✨
+                </button>
+            </div>
+
+        </main>
+
+        <!-- ── VIEW 3: BINGO BOARD ─────────────────────────────── -->
+        <!--
+            The main bingo grid view.
+            Logic: tap empty tile → add small goal sheet.
+                   tap filled tile → toggle done/undone.
+        -->
+        <main id="view-bingo" class="view-screen" aria-label="Bingo board">
+
+            <!-- Goal title + countdown -->
+            <div class="bingo-meta">
+                <h3 id="display-big-goal">Intern in Tech Company</h3>
+                <div class="countdown-tag" id="display-countdown">35 Days to Go!</div>
+            </div>
+
+            <!-- B-I-N-G-O letters + tile grid -->
+            <div class="bingo-board-wrapper">
+                <div class="bingo-letters" aria-hidden="true">
+                    <span class="bingo-letter-cell" id="letter-0">B</span>
+                    <span class="bingo-letter-cell" id="letter-1">I</span>
+                    <span class="bingo-letter-cell" id="letter-2">N</span>
+                    <span class="bingo-letter-cell" id="letter-3">G</span>
+                    <span class="bingo-letter-cell" id="letter-4">O</span>
+                </div>
+                <div class="bingo-grid" id="bingo-grid-matrix" role="grid" aria-label="Bingo tiles">
+                    <!-- Tiles injected by JS -->
+                </div>
+            </div>
+
+            <!-- Motivational quote -->
+            <div class="quote-box" aria-live="polite">
+                <span aria-hidden="true" style="font-size:1.2rem; flex-shrink:0;">💡</span>
+                <p id="quote-text">"Small paws take big leaps! Every cell you fill brings you closer to that goal. Which small win are we chasing today?"</p>
+            </div>
+
+        </main>
+
+    </div>
+    <!-- /screen-content -->
+
+    <!-- ================================================================
+         MODAL OVERLAY — bottom sheet + centre popup share one backdrop
+         ================================================================ -->
+    <div class="modal-overlay" id="modal-overlay-container" role="dialog" aria-modal="true">
+
+        <!-- Bottom sheet: add a small goal to an empty tile -->
+        <div class="bottom-sheet" id="sheet-small-goal" aria-label="Add small goal">
+            <h3>🐾 New Small Goal</h3>
+            <input
+                type="text"
+                id="small-goal-text"
+                class="app-input"
+                style="border: 1.5px solid #d7ccc8;"
+                placeholder="e.g. Complete Resume"
+                aria-label="Small goal text"
+            >
+            <div class="btn-row">
+                <button class="btn-3d btn-neutral" onclick="closeActiveModal()">Cancel</button>
+                <button class="btn-3d btn-teal"    onclick="submitSmallGoalTile()">Add to Grid</button>
+            </div>
+        </div>
+
+        <!-- Centre popup alert: reward / time-out messages -->
+        <div class="popup-alert" id="alert-box-container" aria-live="assertive">
+            <div class="alert-graphic-box" id="alert-graphic" aria-hidden="true">🐈</div>
+            <h3 id="alert-title">Congratulations!</h3>
+            <p  id="alert-message">Message details go here.</p>
+            <button class="btn-3d btn-teal" id="alert-action-btn" onclick="handleAlertActionClick()">
+                Action
+            </button>
+        </div>
+
+    </div>
+
+    <!-- ================================================================
+         BOTTOM NAVIGATION
+         Active pages: index, breathe, growth.
+         Disabled (greyed): logs, safespace (not yet built).
+         ================================================================ -->
+    <nav class="bottom-nav" aria-label="Main navigation">
+        <div class="nav-item"          data-page="breathe.html">   <span class="nav-icon">🍃</span><span>Breathe</span></div>
+        <div class="nav-item disabled" data-page="logs.html">       <span class="nav-icon">📋</span><span>Logs</span></div>
+        <div class="nav-item"          data-page="index.html">      <span class="nav-icon">🏠</span><span>Home</span></div>
+        <div class="nav-item" data-page="safespace.html">  <span class="nav-icon">🐾</span><span>Safe Space</span></div>
+        <div class="nav-item active"   data-page="growth.html">     <span class="nav-icon">📈</span><span>Growth</span></div>
+    </nav>
+
+</div>
+<!-- /phone-container -->
+
+
+<!-- ================================================================
+     JAVASCRIPT
+     ================================================================ -->
+<script>
+    /* ============================================================
+       A. CONSTANTS
+       ============================================================ */
+
+    /** Pages with a working HTML file. Everything else is disabled. */
+    const ACTIVE_PAGES = ['index.html', 'breathe.html', 'growth.html', 'safespace.html'];
+
+    /** All possible bingo winning patterns (rows, columns, diagonals). */
+    const BINGO_PATTERNS = [
+        [0,1,2,3,4],   [5,6,7,8,9],   [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24], // rows
+        [0,5,10,15,20],[1,6,11,16,21],[2,7,12,17,22],   [3,8,13,18,23],   [4,9,14,19,24],   // cols
+        [0,6,12,18,24],[4,8,12,16,20]                                                          // diagonals
+    ];
+
+    /* ============================================================
+       B. APPLICATION STATE
+       ============================================================ */
+    let appState = {
+        currentView:    'view-home',
+        bigGoal:        '',
+        targetDate:     '',
+        tiles:          Array(25).fill(null).map(() => ({ text: '', done: false })),
+        completedLines: []
+    };
+
+    let targetedTileIndex     = null;    // which tile is being edited
+    let currentAlertContext   = '';      // controls multi-step reward modal flow
+
+    /* ============================================================
+       C. DATA PERSISTENCE — localStorage
+          Bingo game state is saved under 'purrfect_bingo_state'.
+          Pet/food counters use the shared keys 'ot_pets' / 'ot_food'
+          so the stats banner stays in sync with index.html & breathe.html.
+       ============================================================ */
+
+    /** Read a numeric counter from localStorage safely. */
+    function readCounter(key) {
+        return parseInt(localStorage.getItem(key) || '0', 10);
+    }
+
+    /** Write a numeric counter then repaint the stats banner. */
+    function writeCounter(key, value) {
+        localStorage.setItem(key, value);
+        refreshStatsBanner();
+    }
+
+    /** Pull the latest persisted values and update the banner. */
+    function refreshStatsBanner() {
+        document.getElementById('stat-pets').textContent = readCounter('ot_pets');
+        document.getElementById('stat-food').textContent = readCounter('ot_food');
+    }
+
+    /** Persist the full bingo state object. */
+    function saveStateToStorage() {
+        localStorage.setItem('purrfect_bingo_state', JSON.stringify(appState));
+    }
+
+    /* ============================================================
+       D. SCREEN NAVIGATION
+          Applies the correct slide animation then reveals the target.
+       ============================================================ */
+
+    /**
+     * Navigate to a view-screen with an animation.
+     * @param {string} viewId     - The id of the target <main>.
+     * @param {'right'|'left'|'scale'} [direction='right'] - Animation.
+     */
+    function navigateTo(viewId, direction = 'right') {
+        const animClass = direction === 'left'  ? 'slide-in-left'  :
+                          direction === 'scale' ? 'fade-scale-in'  :
+                                                  'slide-in-right';
+
+        document.querySelectorAll('.view-screen').forEach(v => {
+            v.classList.remove('active', 'slide-in-right', 'slide-in-left', 'fade-scale-in');
+        });
+
+        const target = document.getElementById(viewId);
+        if (target) {
+            target.classList.add('active', animClass);
+        }
+
+        appState.currentView = viewId;
+        saveStateToStorage();
+    }
+
+    /* ============================================================
+       E. GOAL SETUP
+          Unchanged logic from original — only wiring updated.
+       ============================================================ */
+
+    /** Save the big goal + date, compute countdown, go to bingo board. */
+    function saveBigGoalSetup() {
+        const goalInput = document.getElementById('big-goal-input').value.trim();
+        const dateInput = document.getElementById('target-date-input').value;
+
+        if (!goalInput) {
+            alert("Please enter a big goal first!");
+            return;
+        }
+
+        appState.bigGoal    = goalInput;
+        appState.targetDate = dateInput;
+
+        document.getElementById('display-big-goal').textContent = appState.bigGoal;
+
+        // Calculate days remaining
+        const diffTime = new Date(dateInput) - new Date();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        document.getElementById('display-countdown').textContent =
+            diffDays >= 0 ? `${diffDays} Days to Go!` : `0 Days to Go!`;
+
+        saveStateToStorage();
+        navigateTo('view-bingo', 'right');
+
+        if (diffDays <= 0) {
+            triggerTimeLimitAlert();
+        }
+    }
+
+    /** Check on load whether the saved goal has already expired. */
+    function checkTimeLimitReached() {
+        if (appState.targetDate && appState.bigGoal) {
+            const diffTime = new Date(appState.targetDate) - new Date();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays <= 0) triggerTimeLimitAlert();
+        }
+    }
+
+    /* ============================================================
+       F. BINGO GRID RENDERING
+          Unchanged logic — only CSS class names updated to match new
+          design tokens.
+       ============================================================ */
+
+    /** Rebuild all 25 tiles from appState.tiles. */
+    function renderBingoGridEngine() {
+        const gridContainer = document.getElementById('bingo-grid-matrix');
+        gridContainer.innerHTML = '';
+
+        appState.tiles.forEach((tile, index) => {
+            const tileEl = document.createElement('div');
+            tileEl.className = [
+                'bingo-tile',
+                tile.text ? 'active-set' : '',
+                tile.done ? 'done'       : ''
+            ].filter(Boolean).join(' ');
+
+            tileEl.setAttribute('role', 'gridcell');
+            tileEl.setAttribute('aria-label', tile.text || 'Empty — tap to add goal');
+
+            tileEl.innerHTML = tile.text
+                ? `<span>${tile.text}</span>`
+                : `<span class="paw-icon">🐾</span><span style="opacity:0.5;">Add goal</span>`;
+
+            tileEl.addEventListener('click', () => handleTileInteraction(index));
+            gridContainer.appendChild(tileEl);
+        });
+    }
+
+    /* ============================================================
+       G. TILE INTERACTION LOGIC — unchanged from original
+       ============================================================ */
+
+    function handleTileInteraction(index) {
+        const tile = appState.tiles[index];
+        if (!tile.text) {
+            // Empty tile → open the "add small goal" bottom sheet
+            targetedTileIndex = index;
+            openModalLayout('sheet-small-goal');
+        } else {
+            // Filled tile → toggle done/undone
+            tile.done = !tile.done;
+            renderBingoGridEngine();
+            evaluateBingoLineCompletion(true);
+            saveStateToStorage();
+        }
+    }
+
+    /* ============================================================
+       H. MODAL OPEN / CLOSE
+       ============================================================ */
+
+    /**
+     * Show the modal overlay and reveal one child element.
+     * @param {'sheet-small-goal'|'alert-box-container'} elementId
+     */
+    function openModalLayout(elementId) {
+        document.getElementById('modal-overlay-container').classList.add('active');
+
+        const sheet = document.getElementById('sheet-small-goal');
+        const alert = document.getElementById('alert-box-container');
+
+        // Show only the requested panel
+        sheet.style.display = (elementId === 'sheet-small-goal')    ? 'block' : 'none';
+        alert.style.display = (elementId === 'alert-box-container') ? 'flex'  : 'none';
+
+        // Re-trigger scale animation when alert reopens for a new message
+        if (elementId === 'alert-box-container') {
+            alert.style.animation = 'none';
+            void alert.offsetWidth; // reflow trick to restart animation
+            alert.style.animation  = '';
+        }
+    }
+
+    /** Close whichever panel is open and reset overlay. */
+    function closeActiveModal() {
+        document.getElementById('modal-overlay-container').classList.remove('active');
+        document.getElementById('sheet-small-goal').style.display    = 'none';
+        document.getElementById('alert-box-container').style.display = 'none';
+        targetedTileIndex = null;
+    }
+
+    /** Submit the small-goal input and assign it to the targeted tile. */
+    function submitSmallGoalTile() {
+        const inputField = document.getElementById('small-goal-text');
+        const taskText   = inputField.value.trim();
+
+        if (taskText && targetedTileIndex !== null) {
+            appState.tiles[targetedTileIndex].text = taskText;
+            appState.tiles[targetedTileIndex].done = false;
+            inputField.value = '';
+            closeActiveModal();
+            renderBingoGridEngine();
+            saveStateToStorage();
+        }
+    }
+
+    /* ============================================================
+       I. BINGO WIN DETECTION — unchanged logic from original
+       ============================================================ */
+
+    /**
+     * Check all patterns for new completions, light up BINGO letters,
+     * trigger confetti, and check for endgame.
+     * @param {boolean} triggerAnimationEffects
+     */
+    function evaluateBingoLineCompletion(triggerAnimationEffects) {
+        let newlyCompleted    = 0;
+        let totalActiveLines  = [];
+
+        BINGO_PATTERNS.forEach((pattern, lineIndex) => {
+            const complete = pattern.every(
+                i => appState.tiles[i].text && appState.tiles[i].done
+            );
+            if (complete) {
+                totalActiveLines.push(lineIndex);
+                if (!appState.completedLines.includes(lineIndex)) newlyCompleted++;
+            }
+        });
+
+        if (newlyCompleted > 0 && triggerAnimationEffects) {
+            executeConfettiExplosionEffect();
+        }
+
+        appState.completedLines = totalActiveLines;
+
+        // Light up letters B–O for each completed line (max 5)
+        const lit = Math.min(appState.completedLines.length, 5);
+        for (let i = 0; i < 5; i++) {
+            document.getElementById(`letter-${i}`)
+                .classList.toggle('marked', i < lit);
+        }
+
+        // Endgame: all assigned tiles are done
+        const assigned = appState.tiles.filter(t => t.text !== '');
+        const allDone  = assigned.length > 0 && assigned.every(t => t.done);
+
+        if (allDone && triggerAnimationEffects) {
+            setTimeout(() => determineClimaxAlertPresentation(), 600);
+        }
+    }
+
+    /* ============================================================
+       J. REWARD ALERT STATES — unchanged logic, updated styling
+       ============================================================ */
+
+    /**
+     * Show the correct completion alert based on whether BINGO was
+     * also achieved alongside the goal.
+     */
+    function determineClimaxAlertPresentation() {
+        const hasFiveBingos = appState.completedLines.length >= 5;
+
+        document.getElementById('alert-graphic').textContent    = '🏆';
+        document.getElementById('alert-title').textContent      = 'Congratulations!';
+        document.getElementById('alert-message').textContent    = hasFiveBingos
+            ? 'You have achieved your GOAL and BINGO!'
+            : 'You have achieved your GOAL!';
+        document.getElementById('alert-action-btn').textContent = 'Claim Reward';
+        document.getElementById('alert-action-btn').className   = 'btn-3d btn-teal';
+
+        currentAlertContext = hasFiveBingos ? 'BINGO_PET_UNLOCK' : 'NORMAL_PET_UNLOCK';
+        openModalLayout('alert-box-container');
+    }
+
+    /** Show the time-limit alert when the target date has passed. */
+    function triggerTimeLimitAlert() {
+        document.getElementById('alert-graphic').textContent    = '⏳';
+        document.getElementById('alert-title').textContent      = 'Time Out!';
+        document.getElementById('alert-message').textContent    = 'You have reached the time limit!';
+        document.getElementById('alert-action-btn').textContent = 'Quit';
+        document.getElementById('alert-action-btn').className   = 'btn-3d btn-red';
+
+        currentAlertContext = 'TIMEOUT_RESET';
+        openModalLayout('alert-box-container');
+    }
+
+    /**
+     * Multi-step reward modal controller.
+     * Advances through: Goal → New Pet → (Bonus Food) → Reset.
+     */
+    function handleAlertActionClick() {
+        if (currentAlertContext === 'NORMAL_PET_UNLOCK' || currentAlertContext === 'BINGO_PET_UNLOCK') {
+            // Step 1: unlock a new pet — persist to localStorage
+            const newPets = readCounter('ot_pets') + 1;
+            writeCounter('ot_pets', newPets);
+
+            document.getElementById('alert-graphic').textContent    = '🐱';
+            document.getElementById('alert-title').textContent      = 'New Companion!';
+            document.getElementById('alert-message').textContent    = 'You have unlocked a new pet!';
+            document.getElementById('alert-action-btn').textContent = 'Ok';
+            document.getElementById('alert-action-btn').className   = 'btn-3d btn-teal';
+
+            // BINGO bonus: next step grants cat food
+            currentAlertContext = (currentAlertContext === 'BINGO_PET_UNLOCK')
+                ? 'CAT_FOOD_BONUS'
+                : 'SYSTEM_HARD_RESET';
+
+            // Re-animate the popup for the new message
+            const popup = document.getElementById('alert-box-container');
+            popup.style.animation = 'none';
+            void popup.offsetWidth;
+            popup.style.animation = '';
+
+        } else if (currentAlertContext === 'CAT_FOOD_BONUS') {
+            // Step 2 (BINGO only): gain cat food — persist to localStorage
+            const newFood = readCounter('ot_food') + 1;
+            writeCounter('ot_food', newFood);
+
+            document.getElementById('alert-graphic').textContent    = '🍼';
+            document.getElementById('alert-title').textContent      = 'Bonus Gained!';
+            document.getElementById('alert-message').textContent    = 'You have gained cat food!';
+            document.getElementById('alert-action-btn').textContent = 'Ok';
+
+            currentAlertContext = 'SYSTEM_HARD_RESET';
+
+            const popup = document.getElementById('alert-box-container');
+            popup.style.animation = 'none';
+            void popup.offsetWidth;
+            popup.style.animation = '';
+
+        } else if (currentAlertContext === 'SYSTEM_HARD_RESET' || currentAlertContext === 'TIMEOUT_RESET') {
+            // Final step: wipe all bingo state and return to setup
+            appState.bigGoal        = '';
+            appState.targetDate     = '';
+            appState.tiles          = Array(25).fill(null).map(() => ({ text: '', done: false }));
+            appState.completedLines = [];
+
+            document.getElementById('big-goal-input').value = '';
+
+            renderBingoGridEngine();
+            evaluateBingoLineCompletion(false);
+            closeActiveModal();
+            saveStateToStorage();
+
+            // Reset button style for next use
+            document.getElementById('alert-action-btn').className = 'btn-3d btn-teal';
+
+            navigateTo('view-home', 'left');
+        }
+    }
+
+    /* ============================================================
+       K. CONFETTI ANIMATION — unchanged logic from original
+       ============================================================ */
+    function executeConfettiExplosionEffect() {
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx    = canvas.getContext('2d');
+        canvas.width  = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+
+        const colors    = ['#ff8a80', '#ffd54f', '#4db6ac', '#4fc3f7', '#ba68c8'];
+        let   particles = [];
+
+        for (let i = 0; i < 70; i++) {
+            particles.push({
+                x:      canvas.width / 2,
+                y:      canvas.height / 3,
+                radius: Math.random() * 4 + 2,
+                color:  colors[Math.floor(Math.random() * colors.length)],
+                vx:     (Math.random() - 0.5) * 9,
+                vy:     (Math.random() - 0.5) * 9 - 4,
+                alpha:  1
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let active = false;
+
+            particles.forEach(p => {
+                p.x     += p.vx;
+                p.y     += p.vy;
+                p.vy    += 0.12;   // gravity
+                p.alpha -= 0.014;
+
+                if (p.alpha > 0) {
+                    active = true;
+                    ctx.beginPath();
+                    ctx.fillStyle   = p.color;
+                    ctx.globalAlpha = p.alpha;
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+
+            ctx.globalAlpha = 1;
+            if (active) requestAnimationFrame(animate);
+        }
+
+        animate();
+    }
+
+    /* ============================================================
+       L. BOTTOM NAVIGATION — fixed: only ACTIVE_PAGES get listeners
+       ============================================================ */
+    function initBottomNav() {
+        document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+            const page = item.getAttribute('data-page');
+
+            if (!ACTIVE_PAGES.includes(page)) {
+                // Already has .disabled in HTML — no listener needed
+                return;
+            }
+
+            item.addEventListener('click', () => {
+                window.location.href = page;
+            });
+        });
+    }
+
+    /* ============================================================
+       M. INITIALISATION
+       ============================================================ */
+    window.addEventListener('load', () => {
+        // 1. Paint persisted stats banner
+        refreshStatsBanner();
+
+        // 2. Set default target date to 35 days from today
+        const defaultDate = new Date();
+        defaultDate.setDate(defaultDate.getDate() + 35);
+        document.getElementById('target-date-input').value =
+            defaultDate.toISOString().split('T')[0];
+
+        // 3. Restore saved bingo state if it exists
+        const savedState = localStorage.getItem('purrfect_bingo_state');
+        if (savedState) {
+            try {
+                appState = JSON.parse(savedState);
+
+                // Restore the countdown display
+                if (appState.bigGoal) {
+                    document.getElementById('display-big-goal').textContent = appState.bigGoal;
+                    if (appState.targetDate) {
+                        const diffDays = Math.ceil(
+                            (new Date(appState.targetDate) - new Date()) / (1000 * 60 * 60 * 24)
+                        );
+                        document.getElementById('display-countdown').textContent =
+                            diffDays >= 0 ? `${diffDays} Days to Go!` : `0 Days to Go!`;
+                    }
+                }
+
+                renderBingoGridEngine();
+                evaluateBingoLineCompletion(false);
+                navigateTo(appState.currentView || 'view-home');
+                checkTimeLimitReached();
+            } catch (e) {
+                // Corrupt state — start fresh
+                localStorage.removeItem('purrfect_bingo_state');
+            }
+        } else {
+            renderBingoGridEngine();
+        }
+
+        // 4. Wire up navigation
+        initBottomNav();
+    });
+
+</script>
+</body>
+</html>
