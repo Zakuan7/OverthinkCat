@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purrfect Peace – Breathe</title>
+
+    <!-- Google Fonts: Fredoka for playful, friendly feel matching index.html -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+           1. DESIGN SYSTEM & CSS CUSTOM PROPERTIES
+              Mirrors index.html token system exactly for visual
+              consistency across the app.
+           ============================================================ */
+        :root {
+            /* Core palette */
+            --bg-sky: #9cd6f7;
+            --card-brown: #7c533c;
+            --btn-teal: #007676;
+            --btn-teal-dark: #005050;
+            --btn-cream: #f4edd2;
+            --btn-cream-dark: #ded5b3;
+            --btn-red: #ba1a1a;
+            --btn-red-dark: #8c1111;
+            --text-dark: #422312;
+            --text-muted: #4a6b82;
+
+            /* Breathe-specific accent (soft lavender-mint for calm) */
+            --breathe-ring: #a8d8ea;
+            --breathe-ring-glow: #c8eaf8;
+            --breathe-inhale: #7ec8e3;
+            --breathe-hold: #ffe5a0;
+            --breathe-exhale: #b5ead7;
+
+            /* Shared */
+            --font-friendly: 'Fredoka', 'Nunito', system-ui, sans-serif;
+            --radius-card: 32px;
+            --radius-btn: 24px;
+            --shadow-card: 0 8px 16px rgba(0,0,0,0.1);
+            --shadow-btn: 0 4px 0;
+        }
+
+        /* ============================================================
+           2. RESET & BASE
+           ============================================================ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-friendly);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #e0f2fe;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        /* ============================================================
+           3. PHONE CONTAINER — identical to index.html
+           ============================================================ */
+        .phone-container {
+            width: 100%;
+            max-width: 412px;
+            height: 90vh;
+            max-height: 892px;
+            background: linear-gradient(to bottom, var(--bg-sky), #bfe3f7);
+            border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+           4. APP BAR HEADER — identical to index.html
+           ============================================================ */
+        .app-header {
+            padding: 20px 24px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0d4f75;
+        }
+
+        /* Cat avatar with ears — identical to index.html */
+        .avatar-placeholder {
+            width: 36px;
+            height: 36px;
+            background-color: #ffb84d;
+            border-radius: 50%;
+            border: 2px solid white;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .avatar-placeholder::before,
+        .avatar-placeholder::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            width: 0; height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 8px solid #ffb84d;
+        }
+        .avatar-placeholder::before { left: 2px;  transform: rotate(-20deg); }
+        .avatar-placeholder::after  { right: 2px; transform: rotate(20deg);  }
+
+        .settings-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        /* ============================================================
+           5. PERSISTENT STATS BANNER — identical to index.html
+           ============================================================ */
+        .stats-banner {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-weight: 700;
+            padding: 8px;
+            background-color: rgba(255,255,255,0.4);
+            border-radius: 12px;
+            margin: 0 16px;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+           6. SCREEN CONTENT WRAPPER & SCREEN TRANSITIONS
+              Screens slide in/out rather than appearing abruptly.
+           ============================================================ */
+        .screen-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden; /* clip sliding screens */
+        }
+
+        .screen {
+            display: none;              /* hidden by default */
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            padding: 16px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        /* Active = visible */
+        .screen.active {
+            display: flex;
+        }
+
+        /* --- Slide-in from right (default forward navigation) --- */
+        .screen.slide-in-right {
+            animation: slideInRight 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+        }
+
+        /* --- Slide-in from left (back navigation) --- */
+        .screen.slide-in-left {
+            animation: slideInLeft 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+        }
+
+        /* --- Fade-scale for completion/reward screens --- */
+        .screen.fade-scale-in {
+            animation: fadeScaleIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(48px); }
+            to   { opacity: 1; transform: translateX(0);    }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-48px); }
+            to   { opacity: 1; transform: translateX(0);     }
+        }
+
+        @keyframes fadeScaleIn {
+            from { opacity: 0; transform: scale(0.88); }
+            to   { opacity: 1; transform: scale(1);    }
+        }
+
+        /* ============================================================
+           7. REUSABLE CARD — identical card-brown style from index.html
+           ============================================================ */
+        .main-card {
+            background-color: var(--card-brown);
+            border-radius: var(--radius-card);
+            padding: 24px;
+            color: #ffffff;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+            width: 100%;
+        }
+
+        .main-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .main-card p {
+            font-size: 1rem;
+            opacity: 0.9;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        /* White inner card variant (reward/complete screens) */
+        .card-white {
+            background: #ffffff;
+            border-radius: var(--radius-card);
+            padding: 28px 24px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+            width: 100%;
+        }
+
+        .card-white h2 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .card-white p {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        /* ============================================================
+           8. SQUISHY 3D BUTTONS — identical to index.html
+           ============================================================ */
+        .btn-3d {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 14px 24px;
+            border-radius: var(--radius-btn);
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            transform: translateY(-4px);
+            letter-spacing: 0.3px;
+        }
+
+        .btn-3d:active {
+            transform: translateY(0px);
+        }
+
+        .btn-teal {
+            background-color: var(--btn-teal);
+            color: white;
+            box-shadow: var(--shadow-btn) var(--btn-teal-dark), 0 8px 12px rgba(0,0,0,0.15);
+        }
+        .btn-teal:active {
+            box-shadow: 0 0 0 var(--btn-teal-dark), 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .btn-cream {
+            background-color: var(--btn-cream);
+            color: var(--text-dark);
+            box-shadow: var(--shadow-btn) var(--btn-cream-dark), 0 8px 12px rgba(0,0,0,0.15);
+            margin-bottom: 12px;
+        }
+        .btn-cream:active {
+            box-shadow: 0 0 0 var(--btn-cream-dark), 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .btn-red {
+            background-color: var(--btn-red);
+            color: white;
+            box-shadow: var(--shadow-btn) var(--btn-red-dark), 0 8px 12px rgba(0,0,0,0.15);
+        }
+        .btn-red:active {
+            box-shadow: 0 0 0 var(--btn-red-dark), 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .btn-secondary-link {
+            background: none;
+            border: none;
+            color: white;
+            margin-top: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        /* Small variant for inline buttons */
+        .btn-sm {
+            padding: 10px 18px;
+            font-size: 0.95rem;
+        }
+
+        /* ============================================================
+           9. BREATHING EXERCISE VISUALS
+              Animated concentric ring + phase label
+           ============================================================ */
+
+        /* Outer container centres the rings */
+        .breathe-visual-wrap {
+            width: 220px;
+            height: 220px;
+            position: relative;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* The animated pulsing ring */
+        .breathe-ring {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--breathe-ring-glow) 30%, var(--breathe-ring) 100%);
+            box-shadow: 0 0 0 16px rgba(168, 216, 234, 0.25),
+                        0 0 0 32px rgba(168, 216, 234, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.8s ease, transform 0.8s ease;
+        }
+
+        /* Breathing phases change the ring color */
+        .breathe-ring.phase-inhale {
+            background: radial-gradient(circle, #c8f0fb 30%, var(--breathe-inhale) 100%);
+            animation: ringExpand 4s ease-in-out forwards;
+        }
+        .breathe-ring.phase-hold {
+            background: radial-gradient(circle, #fff9d0 30%, var(--breathe-hold) 100%);
+            animation: ringHold 4s ease-in-out forwards;
+        }
+        .breathe-ring.phase-exhale {
+            background: radial-gradient(circle, #d6f7eb 30%, var(--breathe-exhale) 100%);
+            animation: ringContract 4s ease-in-out forwards;
+        }
+
+        @keyframes ringExpand {
+            0%   { transform: scale(1);    box-shadow: 0 0 0 10px rgba(126,200,227,0.2), 0 0 0 20px rgba(126,200,227,0.1); }
+            100% { transform: scale(1.25); box-shadow: 0 0 0 24px rgba(126,200,227,0.3), 0 0 0 46px rgba(126,200,227,0.12); }
+        }
+        @keyframes ringHold {
+            0%, 100% { transform: scale(1.25); }
+        }
+        @keyframes ringContract {
+            0%   { transform: scale(1.25); box-shadow: 0 0 0 24px rgba(181,234,215,0.3), 0 0 0 46px rgba(181,234,215,0.12); }
+            100% { transform: scale(1);    box-shadow: 0 0 0 10px rgba(181,234,215,0.2), 0 0 0 20px rgba(181,234,215,0.1); }
+        }
+
+        /* Cat face inside the ring */
+        .breathe-cat-face {
+            width: 72px;
+            height: 72px;
+            background: #ffb84d;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: inset -6px -6px 0 #e8a33a;
+        }
+        /* Cat ears */
+        .breathe-cat-face::before,
+        .breathe-cat-face::after {
+            content: '';
+            position: absolute;
+            top: -7px;
+            width: 0; height: 0;
+            border-left: 11px solid transparent;
+            border-right: 11px solid transparent;
+            border-bottom: 16px solid #ffb84d;
+        }
+        .breathe-cat-face::before { left: 5px;  transform: rotate(-20deg); }
+        .breathe-cat-face::after  { right: 5px; transform: rotate(20deg);  }
+
+        /* Phase instruction label (Inhale / Hold / Exhale) */
+        .breathe-phase-label {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #0d4f75;
+            margin-bottom: 6px;
+            min-height: 2rem;
+            transition: opacity 0.4s ease;
+        }
+
+        /* Countdown number inside the phase label row */
+        .breathe-countdown-num {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+            min-height: 3.5rem;
+        }
+
+        /* Small cycle counter below */
+        .breathe-cycle-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* ============================================================
+           10. TECHNIQUE SELECTOR CHIPS
+               Pill-shaped buttons the user taps to choose a technique
+           ============================================================ */
+        .technique-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .technique-chip {
+            background: var(--btn-cream);
+            border: 2px solid transparent;
+            border-radius: 18px;
+            padding: 12px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s, transform 0.1s;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .technique-chip:active { transform: scale(0.97); }
+
+        .technique-chip.selected {
+            border-color: var(--btn-teal);
+            background: #d0f0ed;
+        }
+
+        .technique-chip .chip-emoji {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        /* ============================================================
+           11. PROGRESS / COMPLETION VISUAL
+               Star row shown on the complete screen
+           ============================================================ */
+        .star-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .star {
+            font-size: 2rem;
+            opacity: 0.25;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .star.earned {
+            opacity: 1;
+            transform: scale(1.15);
+        }
+
+        /* ============================================================
+           12. CSS DRAWING: MEDAL (reused from index.html style)
+           ============================================================ */
+        .draw-medal {
+            width: 80px;
+            height: 80px;
+            background: #ffd700;
+            border-radius: 50%;
+            border: 5px solid #ffae00;
+            box-shadow: 0 6px 0 #d4af37;
+            margin: 0 auto 12px;
+        }
+
+        /* ============================================================
+           13. HINT / INSTRUCTION TEXT
+           ============================================================ */
+        .hint-text {
+            font-style: italic;
+            text-align: center;
+            padding: 0 16px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            font-size: 0.9rem;
+            margin-top: 12px;
+        }
+
+        /* ============================================================
+           14. BOTTOM NAVIGATION BAR — identical to index.html
+           ============================================================ */
+        .bottom-nav {
+            height: 72px;
+            background-color: #f7f3e3;
+            border-top: 2px solid #eadebe;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+            flex-shrink: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #8c8269;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: #0a6999;
+        }
+
+        /* Greyed-out nav items for pages not yet built */
+        .nav-item.disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .nav-icon {
+            font-size: 1.4rem;
+            margin-bottom: 2px;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- ================================================================
+     PHONE FRAME
+     ================================================================ -->
+<div class="phone-container">
+
+    <!-- ── APP HEADER ─────────────────────────────────────────── -->
+    <header class="app-header">
+        <div class="brand">
+            <div class="avatar-placeholder" aria-hidden="true"></div>
+            <span>OverthinkCat</span>
+        </div>
+        <div class="settings-btn" role="button" aria-label="Settings">⚙️</div>
+    </header>
+
+    <!-- ── PERSISTENT STATS BANNER ────────────────────────────── -->
+    <div class="stats-banner" aria-live="polite">
+        <span>🐱 Pets Unlocked: <span id="stat-pets">0</span></span>
+        <span>🍼 Cat Food: <span id="stat-food">0</span></span>
+    </div>
+
+    <!-- ================================================================
+         SCREEN CONTENT (all screens stacked, only one visible)
+         ================================================================ -->
+    <div class="screen-content">
+
+        <!-- ── SCREEN 1: WELCOME / CHOOSE TECHNIQUE ──────────────── -->
+        <section id="screen-welcome" class="screen active" aria-label="Choose a breathing technique">
+            <div class="main-card">
+                <h2>Let's Breathe Together 🍃</h2>
+                <p>Pick a technique and your kitten guide will breathe right alongside you.</p>
+
+                <div class="technique-grid" id="technique-grid" role="listbox" aria-label="Breathing techniques">
+                    <!-- Chips generated by JS -->
+                </div>
+
+                <button class="btn-3d btn-teal" id="start-btn" onclick="handleStartBreathing()">
+                    Start Breathing ✨
+                </button>
+            </div>
+
+            <p class="hint-text">Even one round makes a difference. Your anxiety doesn't decide — you do.</p>
+        </section>
+
+        <!-- ── SCREEN 2: ACTIVE BREATHING ────────────────────────── -->
+        <section id="screen-breathing" class="screen" aria-label="Breathing exercise in progress">
+
+            <!-- Phase label + countdown -->
+            <div style="text-align:center; width:100%;">
+                <div class="breathe-phase-label" id="phase-label">Ready…</div>
+                <div class="breathe-countdown-num" id="phase-countdown">–</div>
+            </div>
+
+            <!-- Animated ring with cat face -->
+            <div class="breathe-visual-wrap" aria-hidden="true">
+                <div class="breathe-ring" id="breathe-ring">
+                    <div class="breathe-cat-face"></div>
+                </div>
+            </div>
+
+            <div class="breathe-cycle-text" id="cycle-counter">Cycle 1 of 4</div>
+
+            <!-- Stop button (same style as timer screen in index.html) -->
+            <button class="btn-3d btn-red" style="max-width:200px;" onclick="handleStopBreathing()">
+                Stop
+            </button>
+
+            <p class="hint-text" id="phase-hint">Follow the ring. Breathe with your kitten.</p>
+        </section>
+
+        <!-- ── SCREEN 3: STOP CONFIRM ─────────────────────────────── -->
+        <section id="screen-stop-confirm" class="screen" aria-label="Confirm stopping">
+            <div class="main-card">
+                <h2>Are you sure you want to stop?</h2>
+                <p>Your kitten will miss you… but it's okay to pause. 🐾</p>
+                <div style="display:flex; gap:14px; margin-top:8px;">
+                    <button class="btn-3d btn-red"   onclick="confirmStop(false)">No, keep going</button>
+                    <button class="btn-3d btn-teal"  onclick="confirmStop(true)">Yes, stop</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── SCREEN 4: SESSION COMPLETE ─────────────────────────── -->
+        <section id="screen-complete" class="screen" aria-label="Breathing session complete">
+            <div class="card-white">
+                <div class="draw-medal" aria-hidden="true"></div>
+                <h2>Well done, you! 🎉</h2>
+                <p>You completed a full breathing session. Your kitten is beaming with pride.</p>
+
+                <div class="star-row" id="star-row" aria-label="Sessions completed today">
+                    <span class="star" id="s1">⭐</span>
+                    <span class="star" id="s2">⭐</span>
+                    <span class="star" id="s3">⭐</span>
+                </div>
+
+                <button class="btn-3d btn-teal" style="margin-bottom:12px;" onclick="claimReward()">
+                    🎁 Claim Cat Food
+                </button>
+                <button class="btn-3d btn-cream" onclick="navigateTo('screen-welcome', 'left')">
+                    Breathe Again
+                </button>
+            </div>
+        </section>
+
+        <!-- ── SCREEN 5: REWARD CLAIMED ──────────────────────────── -->
+        <section id="screen-reward" class="screen" aria-label="Reward claimed">
+            <div class="main-card" style="background:#fff; color:var(--text-dark); border:4px solid var(--card-brown);">
+                <h2 style="color:var(--text-dark);">🍼 Cat Food Gained!</h2>
+                <p style="color:#555; font-weight:600;">
+                    Your kitten is well-fed and happy.<br>
+                    Total food saved: <strong id="reward-food-count">0</strong>
+                </p>
+                <button class="btn-3d btn-teal" onclick="navigateTo('screen-welcome', 'left')">
+                    Back Home 🏠
+                </button>
+            </div>
+        </section>
+
+    </div>
+    <!-- /screen-content -->
+
+    <!-- ================================================================
+         BOTTOM NAVIGATION — only index.html & breathe.html active
+         ================================================================ -->
+    <nav class="bottom-nav" aria-label="Main navigation">
+        <div class="nav-item active"    data-page="breathe.html"><span class="nav-icon">🍃</span><span>Breathe</span></div>
+        <div class="nav-item disabled"    data-page="logs.html">   <span class="nav-icon">📋</span><span>Logs</span></div>
+        <div class="nav-item"             data-page="index.html">  <span class="nav-icon">🏠</span><span>Home</span></div>
+        <div class="nav-item"    data-page="safespace.html"><span class="nav-icon">🐾</span><span>Safe Space</span></div>
+        <div class="nav-item"             data-page="growth.html"> <span class="nav-icon">📈</span><span>Growth</span></div>
+    </nav>
+
+</div>
+<!-- /phone-container -->
+
+<!-- ================================================================
+     JAVASCRIPT
+     ================================================================ -->
+<script>
+    /* ============================================================
+       A. CONSTANTS & CONFIGURATION
+          Breathing techniques: each has phases with durations (seconds)
+       ============================================================ */
+
+    /** Pages that have a working HTML file — all others are disabled. */
+    const ACTIVE_PAGES = ['index.html', 'breathe.html', 'growth.html', 'safespace.html'];
+
+    /** Breathing technique definitions. */
+    const TECHNIQUES = [
+        {
+            id:     'box',
+            emoji:  '📦',
+            name:   'Box Breathing',
+            desc:   '4-4-4-4',
+            phases: [
+                { label: 'Inhale',  duration: 4, hint: 'Breathe in slowly…',       ring: 'phase-inhale'  },
+                { label: 'Hold',    duration: 4, hint: 'Hold steady…',              ring: 'phase-hold'    },
+                { label: 'Exhale',  duration: 4, hint: 'Let it all go…',            ring: 'phase-exhale'  },
+                { label: 'Hold',    duration: 4, hint: 'Rest in the stillness…',    ring: 'phase-hold'    },
+            ],
+            cycles: 4,
+        },
+        {
+            id:     '478',
+            emoji:  '🌙',
+            name:   '4-7-8 Calm',
+            desc:   '4-7-8',
+            phases: [
+                { label: 'Inhale',  duration: 4, hint: 'Breathe in slowly…',       ring: 'phase-inhale'  },
+                { label: 'Hold',    duration: 7, hint: 'Hold your breath softly…', ring: 'phase-hold'    },
+                { label: 'Exhale',  duration: 8, hint: 'Long, slow breath out…',   ring: 'phase-exhale'  },
+            ],
+            cycles: 3,
+        },
+        {
+            id:     'calm',
+            emoji:  '🌸',
+            name:   'Deep Calm',
+            desc:   '5-5',
+            phases: [
+                { label: 'Inhale',  duration: 5, hint: 'Expand your lungs gently…', ring: 'phase-inhale' },
+                { label: 'Exhale',  duration: 5, hint: 'Melt the tension away…',    ring: 'phase-exhale' },
+            ],
+            cycles: 5,
+        },
+        {
+            id:     'quick',
+            emoji:  '⚡',
+            name:   'Quick Reset',
+            desc:   '3-3-3',
+            phases: [
+                { label: 'Inhale',  duration: 3, hint: 'Quick breath in…',          ring: 'phase-inhale' },
+                { label: 'Hold',    duration: 3, hint: 'Pause…',                    ring: 'phase-hold'   },
+                { label: 'Exhale',  duration: 3, hint: 'Release…',                  ring: 'phase-exhale' },
+            ],
+            cycles: 4,
+        },
+    ];
+
+    /* ============================================================
+       B. APPLICATION STATE
+       ============================================================ */
+    let appState = {
+        selectedTechniqueId: 'box',   // default selected technique
+        currentPhaseIndex:   0,
+        currentCycle:        1,
+        phaseTimerInterval:  null,
+        phaseSecondsLeft:    0,
+        isRunning:           false,
+    };
+
+    /* ============================================================
+       C. DATA PERSISTENCE — localStorage
+          Mirrors index.html counter keys (ot_pets, ot_food) so the
+          stats banner stays in sync across both pages.
+       ============================================================ */
+
+    /** Read a numeric counter from localStorage safely. */
+    function readCounter(key) {
+        return parseInt(localStorage.getItem(key) || '0', 10);
+    }
+
+    /** Write a numeric counter and refresh the stats banner. */
+    function writeCounter(key, value) {
+        localStorage.setItem(key, value);
+        refreshStatsBanner();
+    }
+
+    /** Pull latest values from localStorage and paint the banner. */
+    function refreshStatsBanner() {
+        document.getElementById('stat-pets').textContent = readCounter('ot_pets');
+        document.getElementById('stat-food').textContent = readCounter('ot_food');
+    }
+
+    /* ============================================================
+       D. NAVIGATION HELPER
+          Applies the correct slide animation, then shows the screen.
+       ============================================================ */
+
+    /**
+     * Navigate to a screen with an optional direction animation.
+     * @param {string} screenId   - The id of the target <section>.
+     * @param {'right'|'left'|'scale'} [direction='right'] - Animation direction.
+     */
+    function navigateTo(screenId, direction = 'right') {
+        const animClass = direction === 'left'  ? 'slide-in-left'  :
+                          direction === 'scale' ? 'fade-scale-in'  :
+                                                  'slide-in-right';
+
+        // Hide all screens
+        document.querySelectorAll('.screen').forEach(s => {
+            s.classList.remove('active', 'slide-in-right', 'slide-in-left', 'fade-scale-in');
+        });
+
+        // Show target with animation
+        const target = document.getElementById(screenId);
+        if (target) {
+            target.classList.add('active', animClass);
+        }
+    }
+
+    /* ============================================================
+       E. TECHNIQUE CHIP RENDERING
+       ============================================================ */
+    function renderTechniqueChips() {
+        const grid = document.getElementById('technique-grid');
+        grid.innerHTML = '';
+
+        TECHNIQUES.forEach(tech => {
+            const chip = document.createElement('div');
+            chip.className = 'technique-chip' + (tech.id === appState.selectedTechniqueId ? ' selected' : '');
+            chip.setAttribute('role', 'option');
+            chip.setAttribute('aria-selected', tech.id === appState.selectedTechniqueId);
+            chip.dataset.id = tech.id;
+            chip.innerHTML = `
+                <span class="chip-emoji">${tech.emoji}</span>
+                <span>${tech.name}</span>
+                <span style="display:block; font-size:0.75rem; opacity:0.6; font-weight:500;">${tech.desc}</span>
+            `;
+            chip.addEventListener('click', () => selectTechnique(tech.id));
+            grid.appendChild(chip);
+        });
+    }
+
+    /** Highlight the chosen chip and update state. */
+    function selectTechnique(id) {
+        appState.selectedTechniqueId = id;
+        document.querySelectorAll('.technique-chip').forEach(c => {
+            const isSelected = c.dataset.id === id;
+            c.classList.toggle('selected', isSelected);
+            c.setAttribute('aria-selected', isSelected);
+        });
+    }
+
+    /* ============================================================
+       F. BREATHING ENGINE
+       ============================================================ */
+
+    /** Called when user taps "Start Breathing". */
+    function handleStartBreathing() {
+        const tech = TECHNIQUES.find(t => t.id === appState.selectedTechniqueId);
+        if (!tech) return;
+
+        // Reset session state
+        appState.currentPhaseIndex = 0;
+        appState.currentCycle      = 1;
+        appState.isRunning         = true;
+
+        navigateTo('screen-breathing', 'right');
+
+        // Short delay so the slide animation settles before starting
+        setTimeout(() => beginPhase(tech), 500);
+    }
+
+    /**
+     * Begin a single breathing phase.
+     * @param {object} tech - The technique definition object.
+     */
+    function beginPhase(tech) {
+        if (!appState.isRunning) return;
+
+        const phase   = tech.phases[appState.currentPhaseIndex];
+        const totalCy = tech.cycles;
+
+        // Update UI labels
+        document.getElementById('phase-label').textContent    = phase.label.toUpperCase();
+        document.getElementById('phase-hint').textContent     = phase.hint;
+        document.getElementById('cycle-counter').textContent  =
+            `Cycle ${appState.currentCycle} of ${totalCy}`;
+
+        // Update ring visual class
+        const ring = document.getElementById('breathe-ring');
+        ring.className = 'breathe-ring ' + phase.ring;
+
+        // Countdown ticker
+        appState.phaseSecondsLeft = phase.duration;
+        updateCountdownDisplay(appState.phaseSecondsLeft);
+
+        clearInterval(appState.phaseTimerInterval);
+        appState.phaseTimerInterval = setInterval(() => {
+            appState.phaseSecondsLeft--;
+            updateCountdownDisplay(appState.phaseSecondsLeft);
+
+            if (appState.phaseSecondsLeft <= 0) {
+                clearInterval(appState.phaseTimerInterval);
+                advancePhase(tech);
+            }
+        }, 1000);
+    }
+
+    /** Update the large countdown number on screen. */
+    function updateCountdownDisplay(val) {
+        document.getElementById('phase-countdown').textContent = val > 0 ? val : '';
+    }
+
+    /**
+     * Move to the next phase, or next cycle, or complete session.
+     * @param {object} tech - The technique definition object.
+     */
+    function advancePhase(tech) {
+        if (!appState.isRunning) return;
+
+        const nextPhaseIndex = appState.currentPhaseIndex + 1;
+
+        if (nextPhaseIndex < tech.phases.length) {
+            // More phases left in this cycle
+            appState.currentPhaseIndex = nextPhaseIndex;
+            beginPhase(tech);
+        } else {
+            // Cycle complete — start next cycle or finish
+            const nextCycle = appState.currentCycle + 1;
+            if (nextCycle <= tech.cycles) {
+                appState.currentPhaseIndex = 0;
+                appState.currentCycle      = nextCycle;
+                beginPhase(tech);
+            } else {
+                // All cycles done — session complete
+                finishSession();
+            }
+        }
+    }
+
+    /** Clean up and show the completion screen. */
+    function finishSession() {
+        appState.isRunning = false;
+        clearInterval(appState.phaseTimerInterval);
+
+        // Reset ring to neutral
+        document.getElementById('breathe-ring').className = 'breathe-ring';
+        document.getElementById('phase-label').textContent    = 'Done!';
+        document.getElementById('phase-countdown').textContent = '';
+
+        navigateTo('screen-complete', 'scale');
+        animateStars();
+    }
+
+    /* ============================================================
+       G. STOP / CONFIRM FLOW
+       ============================================================ */
+
+    /** User taps Stop — pause and ask for confirmation. */
+    function handleStopBreathing() {
+        clearInterval(appState.phaseTimerInterval); // pause countdown
+        navigateTo('screen-stop-confirm', 'right');
+    }
+
+    /**
+     * User responds to the stop confirmation.
+     * @param {boolean} shouldStop - true = stop, false = resume.
+     */
+    function confirmStop(shouldStop) {
+        if (shouldStop) {
+            appState.isRunning = false;
+            clearInterval(appState.phaseTimerInterval);
+            navigateTo('screen-welcome', 'left');
+        } else {
+            // Resume — navigate back and re-start the current phase timer
+            navigateTo('screen-breathing', 'left');
+            const tech = TECHNIQUES.find(t => t.id === appState.selectedTechniqueId);
+            if (tech) {
+                // Resume from remaining seconds (not full duration)
+                const phase = tech.phases[appState.currentPhaseIndex];
+                document.getElementById('phase-label').textContent    = phase.label.toUpperCase();
+                document.getElementById('phase-hint').textContent     = phase.hint;
+                document.getElementById('breathe-ring').className     = 'breathe-ring ' + phase.ring;
+
+                appState.isRunning = true;
+                appState.phaseTimerInterval = setInterval(() => {
+                    appState.phaseSecondsLeft--;
+                    updateCountdownDisplay(appState.phaseSecondsLeft);
+                    if (appState.phaseSecondsLeft <= 0) {
+                        clearInterval(appState.phaseTimerInterval);
+                        advancePhase(tech);
+                    }
+                }, 1000);
+            }
+        }
+    }
+
+    /* ============================================================
+       H. REWARD & DATA PERSISTENCE
+       ============================================================ */
+
+    /** Animate star reveal on the complete screen. */
+    function animateStars() {
+        const stars = document.querySelectorAll('.star');
+        stars.forEach((star, i) => {
+            setTimeout(() => star.classList.add('earned'), i * 280);
+        });
+    }
+
+    /** User claims Cat Food reward — persists to localStorage. */
+    function claimReward() {
+        const newTotal = readCounter('ot_food') + 1;
+        writeCounter('ot_food', newTotal);
+
+        document.getElementById('reward-food-count').textContent = newTotal;
+        navigateTo('screen-reward', 'scale');
+    }
+
+    /* ============================================================
+       I. BOTTOM NAVIGATION
+          Only ACTIVE_PAGES get a click listener.
+          All others get the .disabled class (styled in CSS).
+       ============================================================ */
+    function initBottomNav() {
+        document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+            const page = item.getAttribute('data-page');
+
+            if (!ACTIVE_PAGES.includes(page)) {
+                // Already has .disabled from HTML — skip listener
+                return;
+            }
+
+            // Mark the current page as active
+            if (page === 'breathe.html') {
+                item.classList.add('active');
+                item.classList.remove('disabled');
+            }
+
+            item.addEventListener('click', () => {
+                window.location.href = page;
+            });
+        });
+    }
+
+    /* ============================================================
+       J. INITIALISATION
+       ============================================================ */
+    window.addEventListener('load', () => {
+        refreshStatsBanner();    // paint persisted counts
+        renderTechniqueChips();  // build technique selector
+        initBottomNav();         // wire up nav with active/disabled logic
+    });
+
+</script>
+</body>
+</html>
