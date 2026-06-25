@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Purrfect Peace - Safe Space</title>
+
+    <!-- Google Fonts: Fredoka — matches index.html -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+           1. DESIGN SYSTEM — matches index.html
+           ============================================================ */
+        :root {
+            --bg-sky: #9cd6f7;
+            --card-brown: #7c533c;
+            --btn-teal: #007676;
+            --btn-teal-dark: #005050;
+            --btn-cream: #f4edd2;
+            --btn-cream-dark: #ded5b3;
+            --btn-red: #ba1a1a;
+            --btn-red-dark: #8c1111;
+            --text-dark: #422312;
+            --text-muted: #4a6b82;
+            --neon-blue: #00e5ff;
+            --neon-blue-dim: #00607a;
+            --font-friendly: 'Fredoka', 'Quicksand', 'Nunito', system-ui, sans-serif;
+            --radius-card: 32px;
+            --radius-btn: 24px;
+            --shadow-card: 0 8px 16px rgba(0,0,0,0.10);
+            --shadow-btn: 0 4px 0;
+        }
+
+        /* ============================================================
+           2. RESET & BASE
+           ============================================================ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-friendly);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #e0f2fe;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        /* ============================================================
+           3. PHONE CONTAINER
+           ============================================================ */
+        .phone-container {
+            width: 100%;
+            max-width: 412px;
+            height: 90vh;
+            max-height: 892px;
+            background: linear-gradient(to bottom, var(--bg-sky), #bfe3f7);
+            border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+           4. APP HEADER
+           ============================================================ */
+        .app-header {
+            padding: 20px 24px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0d4f75;
+        }
+
+        .avatar-placeholder {
+            width: 36px;
+            height: 36px;
+            background-color: #ffb84d;
+            border-radius: 50%;
+            border: 2px solid white;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .avatar-placeholder::before,
+        .avatar-placeholder::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            width: 0; height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 8px solid #ffb84d;
+        }
+        .avatar-placeholder::before { left: 2px; transform: rotate(-20deg); }
+        .avatar-placeholder::after { right: 2px; transform: rotate(20deg); }
+
+        .settings-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        /* ============================================================
+           5. STATS BANNER
+           ============================================================ */
+        .stats-banner {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-weight: 700;
+            padding: 8px;
+            background-color: rgba(255,255,255,0.4);
+            border-radius: 12px;
+            margin: 0 16px;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+           6. SCREEN CONTENT & TRANSITIONS
+           ============================================================ */
+        .screen-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .view-screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            padding: 16px;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .view-screen.active {
+            display: flex;
+        }
+
+        .view-screen.slide-in-right {
+            animation: slideInRight 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+        }
+
+        .view-screen.slide-in-left {
+            animation: slideInLeft 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ============================================================
+           7. CARDS & INPUTS
+           ============================================================ */
+        .main-card {
+            background-color: var(--card-brown);
+            border-radius: var(--radius-card);
+            padding: 24px;
+            color: #ffffff;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .main-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .main-card p {
+            font-size: 1rem;
+            opacity: 0.9;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .main-card label {
+            display: block;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .app-input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 16px;
+            border: none;
+            background-color: #ffffff;
+            color: var(--text-dark);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            outline: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        .app-input[type="date"] {
+            cursor: pointer;
+        }
+
+        /* ============================================================
+           8. 3D BUTTONS
+           ============================================================ */
+        .btn-3d {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 14px 24px;
+            border-radius: var(--radius-btn);
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            transform: translateY(-4px);
+            letter-spacing: 0.3px;
+        }
+
+        .btn-3d:active {
+            transform: translateY(0px);
+        }
+
+        .btn-teal {
+            background-color: var(--btn-teal);
+            color: white;
+            box-shadow: var(--shadow-btn) var(--btn-teal-dark), 0 8px 12px rgba(0,0,0,0.15);
+        }
+        .btn-teal:active {
+            box-shadow: 0 0 0 var(--btn-teal-dark), 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .btn-cream {
+            background-color: var(--btn-cream);
+            color: var(--text-dark);
+            box-shadow: var(--shadow-btn) var(--btn-cream-dark), 0 8px 12px rgba(0,0,0,0.15);
+            margin-bottom: 12px;
+        }
+        .btn-cream:active {
+            box-shadow: 0 0 0 var(--btn-cream-dark), 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .btn-red {
+            background-color: var(--btn-red);
+            color: white;
+            box-shadow: var(--shadow-btn) var(--btn-red-dark), 0 8px 12px rgba(0,0,0,0.15);
+        }
+        .btn-red:active {
+            box-shadow: 0 0 0 var(--btn-red-dark), 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .btn-brown {
+            background-color: #8d6e63;
+            color: white;
+            box-shadow: 0 4px 0 #5d4037, 0 8px 12px rgba(0,0,0,0.15);
+        }
+        .btn-brown:active {
+            box-shadow: 0 0 0 #5d4037, 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+        .btn-row .btn-3d {
+            margin-bottom: 0;
+        }
+
+        /* ============================================================
+           9. TASK LIST
+           ============================================================ */
+        .task-list-wrapper {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 18px;
+            padding: 12px;
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            border: 2px dashed var(--card-brown);
+            min-height: 120px;
+        }
+
+        .task-item-row {
+            background: #fff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.15s ease;
+        }
+
+        .task-item-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+        }
+
+        .task-item-date {
+            font-size: 0.8rem;
+            background: #e0f7fa;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #00695c;
+        }
+
+        .task-item-done {
+            background: #a5d6a7;
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .empty-list-message {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* ============================================================
+           10. DYNAMIC MAP — NOW SUPPORTS ANY NUMBER OF TASKS!
+           ============================================================ */
+        .arcade-map-container {
+            flex: 1;
+            position: relative;
+            background: #1a237e;
+            border-radius: 24px;
+            border: 4px solid var(--card-brown);
+            margin-bottom: 16px;
+            overflow: hidden;
+            min-height: 300px;
+            padding: 20px;
+        }
+
+        .map-scroll-wrapper {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 10px 0;
+        }
+
+        .map-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 16px;
+            width: 100%;
+            max-width: 400px;
+            justify-items: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        /* Connection lines between nodes (CSS-based) */
+        .map-node-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+
+        /* Vertical connector line between rows */
+        .map-node-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            width: 3px;
+            height: 20px;
+            background: var(--neon-blue-dim);
+            transition: background 0.4s ease;
+        }
+
+        .map-node-wrapper:last-child::after {
+            display: none;
+        }
+
+        .map-node-wrapper.done-connector::after {
+            background: var(--neon-blue);
+        }
+
+        .arcade-milestone-node {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #37474f;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.6rem;
+            cursor: pointer;
+            box-shadow: 0 0 0 3px #263238, 0 0 10px rgba(0, 229, 255, 0.15);
+            transition: transform 0.15s ease, box-shadow 0.3s ease;
+            position: relative;
+            text-align: center;
+            padding: 4px;
+        }
+
+        .arcade-milestone-node:active {
+            transform: scale(0.9);
+        }
+
+        .node-label {
+            font-size: 0.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 2px;
+            font-weight: 600;
+            max-width: 56px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Locked states */
+        .arcade-milestone-node.locked {
+            background: #546e7a !important;
+            filter: grayscale(1) brightness(0.5);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Unlocked states */
+        .arcade-milestone-node.unlocked {
+            background: #fff;
+            box-shadow: 0 0 0 3px var(--neon-blue), 0 0 20px rgba(0, 229, 255, 0.3);
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 3px var(--neon-blue), 0 0 15px rgba(0, 229, 255, 0.2); }
+            50% { box-shadow: 0 0 0 5px var(--neon-blue), 0 0 30px rgba(0, 229, 255, 0.4); }
+        }
+
+        /* Done states */
+        .arcade-milestone-node.done-state {
+            background: #a7ffeb;
+            box-shadow: 0 0 0 4px #4caf50, 0 0 20px rgba(76, 175, 80, 0.4);
+        }
+
+        /* ============================================================
+           11. MODAL OVERLAY
+           ============================================================ */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 99;
+            padding: 24px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeInOverlay 0.3s ease forwards;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .message-box {
+            background: var(--card-brown);
+            border: 4px solid var(--neon-blue);
+            border-radius: 28px;
+            padding: 28px 24px;
+            color: white;
+            text-align: center;
+            width: 100%;
+            max-width: 340px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+            display: none;
+            transform: scale(0.8) translateY(20px);
+            opacity: 0;
+        }
+
+        .modal-overlay.active .message-box.pop-active {
+            display: block;
+            animation: modalPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.4) forwards;
+        }
+
+        @keyframes modalPopIn {
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .message-box h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .message-box p {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .modal-graphic {
+            font-size: 3.2rem;
+            margin-bottom: 12px;
+            animation: bounceWiggle 0.4s ease-in-out infinite alternate;
+        }
+
+        @keyframes bounceWiggle {
+            from { transform: translateY(0) rotate(-3deg); }
+            to { transform: translateY(-8px) rotate(3deg); }
+        }
+
+        /* ============================================================
+           12. BOTTOM NAVIGATION — ONLY SAFE SPACE!
+           ============================================================ */
+        .bottom-nav {
+            height: 72px;
+            background-color: #f7f3e3;
+            border-top: 2px solid #eadebe;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+            flex-shrink: 0;
+            gap: 40px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #8c8269;
+            cursor: pointer;
+            transition: color 0.2s;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: #0a6999;
+        }
+
+        .nav-icon {
+            font-size: 1.4rem;
+            margin-bottom: 2px;
+        }
+
+        /* ============================================================
+           13. HINT TEXT
+           ============================================================ */
+        .hint-text {
+            font-style: italic;
+            text-align: center;
+            padding: 0 16px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        /* ============================================================
+           14. SCROLLBAR
+           ============================================================ */
+        .view-screen::-webkit-scrollbar,
+        .task-list-wrapper::-webkit-scrollbar,
+        .map-scroll-wrapper::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .view-screen::-webkit-scrollbar-track,
+        .task-list-wrapper::-webkit-scrollbar-track,
+        .map-scroll-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .view-screen::-webkit-scrollbar-thumb,
+        .task-list-wrapper::-webkit-scrollbar-thumb,
+        .map-scroll-wrapper::-webkit-scrollbar-thumb {
+            background: var(--card-brown);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================================================================
+         PHONE FRAME
+         ================================================================ -->
+    <div class="phone-container">
+
+        <!-- APP HEADER -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="avatar-placeholder" aria-hidden="true"></div>
+                <span>OverthinkCat</span>
+            </div>
+            <div class="settings-btn" role="button" aria-label="Settings">⚙️</div>
+        </header>
+
+        <!-- STATS BANNER -->
+        <div class="stats-banner" aria-live="polite">
+            <span>🐱 Pets Unlocked: <span id="stat-pets">0</span></span>
+            <span>🍼 Cat Food: <span id="stat-food">0</span></span>
+        </div>
+
+        <!-- ================================================================
+             SCREEN CONTENT
+             ================================================================ -->
+        <div class="screen-content">
+
+            <!-- ── VIEW 1: INPUT / TASK LIST ──────────────────────── -->
+            <main id="view-input" class="view-screen active" aria-label="Task setup">
+                <div class="main-card">
+                    <h2>🐾 Wanna Play? Setup Your Dream</h2>
+                    <p>Add tasks and watch your progress grow!</p>
+
+                    <label>Enter Task / Dream Element:</label>
+                    <input type="text" id="task-name-field" class="app-input" placeholder="e.g., Build code frame profile">
+
+                    <label>Target Completion Date:</label>
+                    <input type="date" id="task-date-field" class="app-input">
+
+                    <button class="btn-3d btn-teal" onclick="handleAddTaskAction()">
+                        ➕ Add Task
+                    </button>
+                </div>
+
+                <h3 style="font-size:1rem; margin-bottom:8px; font-weight:700; color:var(--text-dark);">
+                    📋 Chronological Task Queue:
+                </h3>
+                <div class="task-list-wrapper" id="task-list-anchor">
+                    <!-- Dynamically rendered by JS -->
+                </div>
+
+                <button class="btn-3d btn-brown" onclick="handleConfirmListSetup()">
+                    Confirm &amp; View Map ➔
+                </button>
+            </main>
+
+            <!-- ── VIEW 2: MAP / ACHIEVEMENT GRID ──────────────────── -->
+            <main id="view-map" class="view-screen" aria-label="Achievement map">
+                <div style="text-align:center; margin-bottom:12px;">
+                    <h3 style="font-size:1.1rem; color:var(--text-dark);" id="map-headline-label">
+                        🗺️ Chasing Your Dream
+                    </h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted);" id="map-progress-label">
+                        Complete tasks to light up the path!
+                    </p>
+                </div>
+
+                <!-- Dynamic map container -->
+                <div class="arcade-map-container">
+                    <div class="map-scroll-wrapper">
+                        <div class="map-grid" id="map-grid-container">
+                            <!-- Nodes dynamically generated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn-3d btn-cream" onclick="navigateToView('view-input', 'left')">
+                        ← Back to Tasks
+                    </button>
+                    <button class="btn-3d btn-brown" onclick="resetAllTasks()">
+                        🔄 Reset All
+                    </button>
+                </div>
+
+                <p class="hint-text">Tap an unlocked node to mark it as done. Complete all to unlock rewards!</p>
+            </main>
+
+        </div>
+
+        <!-- ================================================================
+             MODAL OVERLAY
+             ================================================================ -->
+        <div class="modal-overlay" id="global-modal-wrapper" role="dialog" aria-modal="true">
+
+            <!-- Task prompt -->
+            <div class="message-box" id="box-task-prompt">
+                <div class="modal-graphic">🐾</div>
+                <h3 id="prompt-task-title">Task Verification</h3>
+                <p id="prompt-task-details">Is this milestone completed?</p>
+                <div class="btn-row">
+                    <button class="btn-3d btn-red" onclick="closeModalWindow()">Cancel</button>
+                    <button class="btn-3d btn-teal" onclick="handleMarkNodeDone()">✅ Done</button>
+                </div>
+            </div>
+
+            <!-- Progress celebration -->
+            <div class="message-box" id="box-progress-celebration">
+                <div class="modal-graphic">🎉</div>
+                <h3 id="celebration-title">Nice Progress!</h3>
+                <p id="celebration-progress-text">Congratulations, you have completed 0% of your dream!</p>
+                <button class="btn-3d btn-teal" onclick="handleTriggerRewardPipeline()">
+                    🎁 Reward
+                </button>
+            </div>
+
+            <!-- Reward claim -->
+            <div class="message-box" id="box-reward-claim">
+                <div class="modal-graphic" id="reward-graphic-node">🧃</div>
+                <h3 id="reward-claim-title">Gained Reward!</h3>
+                <p id="reward-claim-msg">You have gained cat food</p>
+                <button class="btn-3d btn-teal" onclick="handleAcknowledgeRewardClaim()">
+                    Ok 👍
+                </button>
+            </div>
+
+        </div>
+
+        <!-- ================================================================
+             BOTTOM NAVIGATION — ONLY SAFE SPACE!
+             ================================================================ -->
+        <nav class="bottom-nav">
+            <div class="nav-item"          data-page="breathe.html">  <span class="nav-icon">🍃</span><span>Breathe</span></div>
+            <div class="nav-item disabled" data-page="logs.html">      <span class="nav-icon">📋</span><span>Logs</span></div>
+            <div class="nav-item"   data-page="index.html">     <span class="nav-icon">🏠</span><span>Home</span></div>
+            <div class="nav-item active" data-page="safespace.html"> <span class="nav-icon">🐾</span><span>Safe Space</span></div>
+            <div class="nav-item" data-page="growth.html">    <span class="nav-icon">📈</span><span>Growth</span></div>
+        </nav>
+
+    </div>
+
+    <!-- ================================================================
+         JAVASCRIPT
+         ================================================================ -->
+    <script>
+        /* ============================================================
+           CONSTANTS
+           ============================================================ */
+
+        /** Pages with a working HTML file — all others are disabled. */
+        const ACTIVE_PAGES = ['index.html', 'breathe.html', 'growth.html', 'safespace.html'];
+
+        /* ============================================================
+           A. DATA PERSISTENCE — localStorage
+           ============================================================ */
+
+        /** Read a numeric counter from localStorage safely. */
+        function readCounter(key) {
+            return parseInt(localStorage.getItem(key) || '0', 10);
+        }
+
+        /** Write a numeric counter then repaint the stats banner. */
+        function writeCounter(key, value) {
+            localStorage.setItem(key, String(value));
+            refreshStatsBanner();
+        }
+
+        /** Refresh the stats banner. */
+        function refreshStatsBanner() {
+            document.getElementById('stat-pets').textContent = readCounter('ot_pets');
+            document.getElementById('stat-food').textContent = readCounter('ot_food');
+        }
+
+        /** Save the full Safe Space state. */
+        function saveStateToDevice() {
+            localStorage.setItem('ot_safespace_state', JSON.stringify(sessionState));
+        }
+
+        /** Load the full Safe Space state. */
+        function loadStateFromDevice() {
+            const saved = localStorage.getItem('ot_safespace_state');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    sessionState = { ...sessionState, ...parsed };
+                    return true;
+                } catch (e) {
+                    console.warn('Failed to parse saved state.');
+                }
+            }
+            return false;
+        }
+
+        /* ============================================================
+           B. APPLICATION STATE
+           ============================================================ */
+        let sessionState = {
+            taskQueue: [],
+            currentTargetNodeIndex: null
+        };
+
+        /* ============================================================
+           C. AUDIO FX
+           ============================================================ */
+        const AudioFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            playWakka() {
+                this.init();
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(350, this.ctx.currentTime + 0.12);
+                    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.13);
+                } catch (e) { /* silent fail */ }
+            },
+            playChime() {
+                this.init();
+                try {
+                    const t = this.ctx.currentTime;
+                    [440, 554, 659, 880].forEach((f, i) => {
+                        const osc = this.ctx.createOscillator();
+                        const g = this.ctx.createGain();
+                        osc.frequency.setValueAtTime(f, t + (i * 0.08));
+                        g.gain.setValueAtTime(0.10, t + (i * 0.08));
+                        g.gain.exponentialRampToValueAtTime(0.001, t + (i * 0.08) + 0.2);
+                        osc.connect(g);
+                        g.connect(this.ctx.destination);
+                        osc.start(t + (i * 0.08));
+                        osc.stop(t + (i * 0.08) + 0.2);
+                    });
+                } catch (e) { /* silent fail */ }
+            },
+            playFanfare() {
+                this.init();
+                try {
+                    const t = this.ctx.currentTime;
+                    [523, 659, 784, 1047, 784, 659, 523].forEach((f, i) => {
+                        const osc = this.ctx.createOscillator();
+                        const g = this.ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(f, t + (i * 0.1));
+                        g.gain.setValueAtTime(0.08, t + (i * 0.1));
+                        g.gain.exponentialRampToValueAtTime(0.001, t + (i * 0.1) + 0.3);
+                        osc.connect(g);
+                        g.connect(this.ctx.destination);
+                        osc.start(t + (i * 0.1));
+                        osc.stop(t + (i * 0.1) + 0.3);
+                    });
+                } catch (e) { /* silent fail */ }
+            }
+        };
+
+        /* ============================================================
+           D. NAVIGATION
+           ============================================================ */
+        function navigateToView(viewId, direction = 'right') {
+            const animClass = direction === 'left' ? 'slide-in-left' : 'slide-in-right';
+
+            document.querySelectorAll('.view-screen').forEach(v => {
+                v.classList.remove('active', 'slide-in-right', 'slide-in-left');
+            });
+
+            const target = document.getElementById(viewId);
+            if (target) {
+                target.classList.add('active', animClass);
+            }
+        }
+
+        /* ============================================================
+           E. TASK MANAGEMENT
+           ============================================================ */
+        function handleAddTaskAction() {
+            const taskInput = document.getElementById('task-name-field');
+            const dateInput = document.getElementById('task-date-field');
+
+            const nameVal = taskInput.value.trim();
+            const dateVal = dateInput.value;
+
+            if (!nameVal || !dateVal) {
+                alert('Please enter a task and select a target date!');
+                return;
+            }
+
+            sessionState.taskQueue.push({
+                id: 'tk-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+                title: nameVal,
+                date: dateVal,
+                done: false
+            });
+
+            // Sort by date (nearest first), then by title
+            sessionState.taskQueue.sort((a, b) => {
+                const dateDiff = new Date(a.date) - new Date(b.date);
+                if (dateDiff !== 0) return dateDiff;
+                return a.title.localeCompare(b.title);
+            });
+
+            taskInput.value = '';
+            dateInput.value = new Date().toISOString().split('T')[0];
+
+            AudioFX.playWakka();
+            renderTaskQueueDOM();
+            saveStateToDevice();
+        }
+
+        function renderTaskQueueDOM() {
+            const anchor = document.getElementById('task-list-anchor');
+
+            if (sessionState.taskQueue.length === 0) {
+                anchor.innerHTML = `
+                    <div class="empty-list-message">
+                        🐾 No tasks yet.<br>
+                        Add your first dream step above!
+                    </div>
+                `;
+                return;
+            }
+
+            anchor.innerHTML = '';
+            sessionState.taskQueue.forEach(task => {
+                const row = document.createElement('div');
+                row.className = 'task-item-row' + (task.done ? ' task-item-done' : '');
+                row.innerHTML = `
+                    <span class="task-item-title">${task.title}</span>
+                    <span class="task-item-date">${task.date}</span>
+                `;
+                anchor.appendChild(row);
+            });
+        }
+
+        function handleConfirmListSetup() {
+            if (sessionState.taskQueue.length === 0) {
+                alert('Please add at least one task before viewing the map!');
+                return;
+            }
+
+            renderDynamicMap();
+            navigateToView('view-map', 'right');
+            saveStateToDevice();
+        }
+
+        function resetAllTasks() {
+            if (confirm('Are you sure you want to reset all tasks? This cannot be undone.')) {
+                sessionState.taskQueue = [];
+                renderTaskQueueDOM();
+                renderDynamicMap();
+                saveStateToDevice();
+                navigateToView('view-input', 'left');
+            }
+        }
+
+        /* ============================================================
+           F. DYNAMIC MAP — NOW SUPPORTS ANY NUMBER OF TASKS!
+           ============================================================ */
+        function renderDynamicMap() {
+            const grid = document.getElementById('map-grid-container');
+            grid.innerHTML = '';
+
+            const tasks = sessionState.taskQueue;
+            const total = tasks.length;
+            const done = tasks.filter(t => t.done).length;
+
+            // Update progress label
+            const progressLabel = document.getElementById('map-progress-label');
+            if (total === 0) {
+                progressLabel.textContent = 'No tasks mapped yet. Add some!';
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1; text-align:center; color:rgba(255,255,255,0.5); padding:40px 0;">
+                        🐾 Add tasks to see your progress map!
+                    </div>
+                `;
+                return;
+            }
+            const pct = Math.round((done / total) * 100);
+            progressLabel.textContent = `${done} of ${total} complete (${pct}%)`;
+
+            // Update headline
+            const headline = document.getElementById('map-headline-label');
+            const firstTask = tasks[0];
+            headline.textContent = `🗺️ ${firstTask.title.split(' ').slice(0, 3).join(' ')}...`;
+
+            // Create nodes dynamically
+            tasks.forEach((task, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'map-node-wrapper';
+
+                // Add connector class if previous node is done
+                if (index > 0 && tasks[index - 1].done) {
+                    wrapper.classList.add('done-connector');
+                }
+
+                const node = document.createElement('div');
+                node.className = 'arcade-milestone-node';
+                node.id = `node-${index}`;
+
+                // Determine state
+                if (task.done) {
+                    node.classList.add('done-state');
+                    node.innerHTML = `✅<span class="node-label">${task.title.substring(0, 8)}</span>`;
+                } else {
+                    node.classList.add('unlocked');
+                    node.innerHTML = `🎯<span class="node-label">${task.title.substring(0, 8)}</span>`;
+                }
+
+                node.title = task.title + (task.done ? ' ✅' : '');
+                node.dataset.index = index;
+
+                node.addEventListener('click', () => handleNodeTap(parseInt(node.dataset.index)));
+
+                wrapper.appendChild(node);
+
+                // Add a small label showing the task number
+                const label = document.createElement('div');
+                label.style.cssText = `
+                    color: rgba(255,255,255,0.6);
+                    font-size: 0.6rem;
+                    margin-top: 4px;
+                    font-weight: 600;
+                `;
+                label.textContent = `#${index + 1}`;
+                wrapper.appendChild(label);
+
+                grid.appendChild(wrapper);
+            });
+        }
+
+        function handleNodeTap(index) {
+            const tasks = sessionState.taskQueue;
+            if (index >= tasks.length) return;
+
+            const targetTask = tasks[index];
+            if (targetTask.done) {
+                showTemporaryMessage('✅ Already completed!');
+                return;
+            }
+
+            sessionState.currentTargetNodeIndex = index;
+
+            document.getElementById('prompt-task-title').textContent = targetTask.title;
+            document.getElementById('prompt-task-details').innerHTML =
+                `📅 Target: ${targetTask.date}<br><br>Have you completed this milestone?`;
+
+            openModalWindow('box-task-prompt');
+        }
+
+        function handleMarkNodeDone() {
+            const activeIdx = sessionState.currentTargetNodeIndex;
+            if (activeIdx === null || activeIdx >= sessionState.taskQueue.length) {
+                closeModalWindow();
+                return;
+            }
+
+            const targetTask = sessionState.taskQueue[activeIdx];
+            targetTask.done = true;
+
+            closeModalWindow();
+            AudioFX.playChime();
+
+            renderTaskQueueDOM();
+            renderDynamicMap();
+            saveStateToDevice();
+
+            const total = sessionState.taskQueue.length;
+            const done = sessionState.taskQueue.filter(t => t.done).length;
+            const pct = Math.round((done / total) * 100);
+
+            const celebrationTitle = document.getElementById('celebration-title');
+            const celebrationMsg = document.getElementById('celebration-progress-text');
+
+            if (done === total) {
+                celebrationTitle.textContent = '🎉 Dream Achieved!';
+                celebrationMsg.textContent = 'Congratulations, you have achieved your DREAM!';
+                AudioFX.playFanfare();
+            } else {
+                celebrationTitle.textContent = '🌟 Nice Progress!';
+                celebrationMsg.textContent = `Congratulations, you have completed [${pct}%] of your dream!`;
+            }
+
+            setTimeout(() => {
+                openModalWindow('box-progress-celebration');
+            }, 350);
+        }
+
+        /* ============================================================
+           G. REWARD SYSTEM
+           ============================================================ */
+        function handleTriggerRewardPipeline() {
+            closeModalWindow();
+
+            const tasks = sessionState.taskQueue;
+            const done = tasks.filter(t => t.done).length;
+            const total = tasks.length;
+            const isComplete = (done === total);
+
+            const rewardGraphic = document.getElementById('reward-graphic-node');
+            const rewardTitle = document.getElementById('reward-claim-title');
+            const rewardMsg = document.getElementById('reward-claim-msg');
+
+            if (isComplete) {
+                const newPets = readCounter('ot_pets') + 1;
+                writeCounter('ot_pets', newPets);
+                rewardGraphic.textContent = '🐱';
+                rewardTitle.textContent = '🎉 New Companion!';
+                rewardMsg.textContent = 'You have unlocked a new pet!';
+            } else {
+                const newFood = readCounter('ot_food') + 1;
+                writeCounter('ot_food', newFood);
+                rewardGraphic.textContent = '🧃';
+                rewardTitle.textContent = '🍼 Gained Reward!';
+                rewardMsg.textContent = 'You have gained cat food!';
+            }
+
+            setTimeout(() => {
+                openModalWindow('box-reward-claim');
+            }, 300);
+        }
+
+        function handleAcknowledgeRewardClaim() {
+            closeModalWindow();
+
+            const tasks = sessionState.taskQueue;
+            const done = tasks.filter(t => t.done).length;
+            const total = tasks.length;
+
+            if (done === total) {
+                // All done — reset everything
+                sessionState.taskQueue = [];
+                renderTaskQueueDOM();
+                renderDynamicMap();
+                saveStateToDevice();
+                setTimeout(() => {
+                    navigateToView('view-input', 'left');
+                }, 300);
+            } else {
+                navigateToView('view-map', 'left');
+            }
+        }
+
+        /* ============================================================
+           H. MODAL CONTROLS
+           ============================================================ */
+        function openModalWindow(boxId) {
+            const overlay = document.getElementById('global-modal-wrapper');
+
+            document.querySelectorAll('.message-box').forEach(box => {
+                box.classList.remove('pop-active');
+                box.style.display = 'none';
+            });
+
+            const targetBox = document.getElementById(boxId);
+            if (targetBox) {
+                targetBox.style.display = 'block';
+                void targetBox.offsetWidth; // Reflow
+                targetBox.classList.add('pop-active');
+            }
+
+            overlay.classList.add('active');
+        }
+
+        function closeModalWindow() {
+            const overlay = document.getElementById('global-modal-wrapper');
+            overlay.classList.remove('active');
+
+            document.querySelectorAll('.message-box').forEach(box => {
+                box.classList.remove('pop-active');
+                box.style.display = 'none';
+            });
+
+            sessionState.currentTargetNodeIndex = null;
+        }
+
+        function showTemporaryMessage(message) {
+            // Simple fallback — you could replace with a toast later
+            alert(`🐱 ${message}`);
+        }
+
+        /* ============================================================
+           I. INITIALISATION
+           ============================================================ */
+        window.addEventListener('load', function() {
+            // 1. Refresh stats
+            refreshStatsBanner();
+            initBottomNav();
+
+            // 2. Set default date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('task-date-field').value = today;
+
+            // 3. Load saved state
+            const hasSavedState = loadStateFromDevice();
+
+            // 4. Render UI
+            renderTaskQueueDOM();
+
+            if (hasSavedState && sessionState.taskQueue.length > 0) {
+                renderDynamicMap();
+                // Check if we should be on the map view
+                const activeView = document.querySelector('.view-screen.active');
+                if (activeView && activeView.id === 'view-map') {
+                    renderDynamicMap();
+                }
+            } else {
+                navigateToView('view-input');
+            }
+        });
+        /* ============================================================
+           BOTTOM NAVIGATION — fixed: only active pages get listeners
+           ============================================================ */
+        function initBottomNav() {
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+                const page = item.getAttribute('data-page');
+
+                if (!ACTIVE_PAGES.includes(page)) {
+                    // Already has .disabled class in HTML — no listener needed
+                    return;
+                }
+
+                item.addEventListener('click', () => {
+                    window.location.href = page;
+                });
+            });
+        }
+        
+    </script>
+</body>
+</html>
