@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purrfect Peace</title>
+    <style>
+        /* --- 1. DESIGN SYSTEM & RESET --- */
+        :root {
+            --bg-sky: #9cd6f7;
+            --card-brown: #7c533c;
+            --btn-teal: #007676;
+            --btn-teal-dark: #005050;
+            --btn-cream: #f4edd2;
+            --btn-cream-dark: #ded5b3;
+            --btn-red: #ba1a1a;
+            --btn-red-dark: #8c1111;
+            --text-dark: #422312;
+            --font-friendly: 'Fredoka', 'Quicksand', 'Nunito', system-ui, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-friendly);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #e0f2fe;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        /* --- 2. MOBILE CONTAINER (RESPONSIVE UNIFORM SCALING) --- */
+        .phone-container {
+            width: 100%;
+            max-width: 412px;
+            height: 90vh;
+            max-height: 892px;
+            background: linear-gradient(to bottom, var(--bg-sky), #bfe3f7);
+            border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- 3. APP BAR HEADER --- */
+        .app-header {
+            padding: 20px 24px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0d4f75;
+        }
+
+        .avatar-placeholder {
+            width: 36px;
+            height: 36px;
+            background-color: #ffb84d;
+            border-radius: 50%;
+            border: 2px solid white;
+            position: relative;
+        }
+        /* Tiny cat ears for the avatar */
+        .avatar-placeholder::before, .avatar-placeholder::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            width: 0; height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 8px solid #ffb84d;
+        }
+        .avatar-placeholder::before { left: 2px; transform: rotate(-20deg); }
+        .avatar-placeholder::after { right: 2px; transform: rotate(20deg); }
+
+        .settings-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        /* --- 4. MAIN SCREEN AREA & TRANSITIONS --- */
+        .screen-content {
+            flex: 1;
+            padding: 16px;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 16px;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .screen.active {
+            display: flex;
+            animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* --- 5. CUTE UI CARDS --- */
+        .main-card {
+            background-color: var(--card-brown);
+            border-radius: 32px;
+            padding: 24px;
+            color: #ffffff;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .main-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .main-card label {
+            display: block;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Inputs & Dropdowns */
+        .app-input, .app-select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 16px;
+            border: none;
+            background-color: var(--btn-cream);
+            color: var(--text-dark);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        /* --- 6. SQUISHY 3D BUTTONS --- */
+        .btn-3d {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 14px 24px;
+            border-radius: 24px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            transform: translateY(-4px);
+        }
+
+        .btn-3d:active {
+            transform: translateY(0px);
+        }
+
+        .btn-teal {
+            background-color: var(--btn-teal);
+            color: white;
+            box-shadow: 0 4px 0 var(--btn-teal-dark), 0 8px 12px rgba(0,0,0,0.15);
+        }
+        .btn-teal:active { box-shadow: 0 0px 0 var(--btn-teal-dark), 0 2px 4px rgba(0,0,0,0.15); }
+
+        .btn-cream {
+            background-color: var(--btn-cream);
+            color: var(--text-dark);
+            box-shadow: 0 4px 0 var(--btn-cream-dark), 0 8px 12px rgba(0,0,0,0.15);
+            margin-bottom: 12px;
+        }
+        .btn-cream:active { box-shadow: 0 0px 0 var(--btn-cream-dark), 0 2px 4px rgba(0,0,0,0.15); }
+
+        .btn-red {
+            background-color: var(--btn-red);
+            color: white;
+            box-shadow: 0 4px 0 var(--btn-red-dark), 0 8px 12px rgba(0,0,0,0.15);
+        }
+        .btn-red:active { box-shadow: 0 0px 0 var(--btn-red-dark), 0 2px 4px rgba(0,0,0,0.15); }
+
+        .btn-secondary {
+            background: none;
+            border: none;
+            color: white;
+            margin-top: 14px;
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        /* --- 7. TIMER DISPLAY --- */
+        .timer-display {
+            font-size: 4.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 20px 0;
+            color: var(--text-dark);
+        }
+
+        .hint-text {
+            font-style: italic;
+            text-align: center;
+            padding: 0 20px;
+            color: #4a6b82;
+            line-height: 1.4;
+        }
+
+        /* --- 8. REWARDS & GRAPHICS PLACEHOLDERS --- */
+        .reward-graphic {
+            width: 140px;
+            height: 140px;
+            margin: 16px auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* CSS Drawing: Kitten */
+        .draw-kitten {
+            width: 90px;
+            height: 90px;
+            background: #e6a15c;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: inset -10px -10px 0 #cf8d4a;
+        }
+        .draw-kitten::before, .draw-kitten::after {
+            content: ''; position: absolute; top: -8px;
+            width: 0; height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 22px solid #e6a15c;
+        }
+        .draw-kitten::before { left: 4px; transform: rotate(-25deg); }
+        .draw-kitten::after { right: 4px; transform: rotate(25deg); }
+
+        /* CSS Drawing: Food Carton */
+        .draw-food {
+            width: 70px;
+            height: 90px;
+            background: #ffb3ba;
+            border-radius: 8px;
+            position: relative;
+            border: 4px solid white;
+        }
+        .draw-food::before {
+            content: 'MILK';
+            position: absolute;
+            top: 30px; left: 6px;
+            font-size: 0.8rem; font-weight: 900; color: white;
+        }
+
+        /* CSS Drawing: Medal */
+        .draw-medal {
+            width: 90px;
+            height: 90px;
+            background: #ffd700;
+            border-radius: 50%;
+            border: 6px solid #ffae00;
+            box-shadow: 0 8px 0 #d4af37;
+        }
+
+        /* --- 9. PERSISTENT STATS BANNER --- */
+        .stats-banner {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-weight: 700;
+            padding: 8px;
+            background-color: rgba(255,255,255,0.4);
+            border-radius: 12px;
+            margin: 0 16px;
+            font-size: 0.9rem;
+        }
+
+        /* --- 10. BOTTOM NAVIGATION BAR --- */
+        .bottom-nav {
+            height: 72px;
+            background-color: #f7f3e3;
+            border-top: 2px solid #eadebe;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #8c8269;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: #0a6999;
+        }
+
+        /* Greyed-out nav items for pages not yet built */
+        .nav-item.disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .nav-icon {
+            font-size: 1.4rem;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-container">
+        <div class="app-header">
+            <div class="brand">
+                <div class="avatar-placeholder"></div>
+                <span>OverthinkCat</span>
+            </div>
+            <div class="settings-btn">⚙️</div>
+        </div>
+
+        <div class="stats-banner">
+            <span>🐱 Pets Unlocked: <span id="stat-pets">0</span></span>
+            <span>🍼 Cat Food: <span id="stat-food">0</span></span>
+        </div>
+
+        <div class="screen-content">
+
+            <div id="screen-home" class="screen active">
+                <div class="main-card">
+                    <h2>Wanna Play? What's on your mind?</h2>
+                    <input type="text" id="input-mind" class="app-input" placeholder="e.g., Exploring Vibe Code" value="Exploring Vibe Code">
+                    
+                    <label>What are you worrying about?</label>
+                    <select id="select-fear" class="app-select">
+                        <option value="Fear of failure">Fear of failure</option>
+                        <option value="Fear of wasting time">Fear of wasting time</option>
+                        <option value="Fear of judgement">Fear of judgement</option>
+                        <option value="Other">Other</option>
+                    </select>
+
+                    <button class="btn-3d btn-teal" onclick="handleHomeContinue()">Continue ➔</button>
+                </div>
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <button class="btn-3d btn-cream" style="font-size:0.9rem; padding:10px;">Daily Journal</button>
+                    <button class="btn-3d btn-cream" style="font-size:0.9rem; padding:10px;">Calm Music</button>
+                </div>
+            </div>
+
+            <div id="screen-suggestion" class="screen">
+                <div class="main-card">
+                    <h2 id="suggestion-text" style="background-color: var(--btn-cream); color: var(--text-dark); padding: 20px; border-radius: 20px; border: 3px dashed var(--card-brown);">
+                        Try Exploring Vibe Code for 5 minutes
+                    </h2>
+                    <div style="margin-top: 24px;">
+                        <button class="btn-3d btn-teal" onclick="startTimerSession()">Start</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="screen-timer" class="screen">
+                <div style="text-align: center;">
+                    <div id="timer-label" style="font-weight:700; letter-spacing:2px; opacity:0.6;">FOCUSING...</div>
+                    <div class="timer-display" id="time-display">01:00</div>
+                    <button class="btn-3d btn-red" style="max-width: 200px;" onclick="stopTimerClick()">Stop</button>
+                </div>
+                <div class="hint-text" style="margin-top: 40px;">
+                    Take deep breaths as the kitten watches with you.
+                </div>
+            </div>
+
+            <div id="screen-quit-confirm" class="screen">
+                <div class="main-card">
+                    <h2>Are you sure you want to quit?</h2>
+                    <div style="margin-top:20px; display:flex; gap:16px;">
+                        <button class="btn-3d btn-red" onclick="confirmQuitResponse(false)">No</button>
+                        <button class="btn-3d btn-teal" onclick="confirmQuitResponse(true)">Yes</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="screen-reflection" class="screen">
+                <div class="main-card">
+                    <p style="text-transform: uppercase; font-weight:700; letter-spacing:1px; margin-bottom:8px; opacity:0.8;">Reflection</p>
+                    <h2 style="margin-bottom:24px;">Was your fear accurate?</h2>
+                    
+                    <button class="btn-3d btn-cream" onclick="handleReflection('No')">No</button>
+                    <button class="btn-3d btn-cream" onclick="handleReflection('Partly')">Partly</button>
+                    <button class="btn-3d btn-cream" onclick="handleReflection('Yes')">Yes</button>
+                </div>
+            </div>
+
+            <div id="screen-outcome-track" class="screen">
+                <div class="main-card">
+                    <h2 id="outcome-track-msg">You are on the right track!</h2>
+                    <div class="reward-graphic"><div class="draw-kitten" style="transform: scale(0.9);"></div></div>
+                    <div style="margin-top:20px; display:flex; gap:16px;">
+                        <button class="btn-3d btn-teal" id="outcome-continue-btn" onclick="handleOutcomeAction('continue')">Continue</button>
+                    </div>
+                    <button class="btn-secondary" id="outcome-quit-btn" onclick="handleOutcomeAction('quit')">Quit</button>
+                </div>
+            </div>
+
+            <div id="screen-outcome-yes" class="screen">
+                <div class="main-card">
+                    <h2>Feel free to explore another thing!</h2>
+                    <div style="margin-top:24px;">
+                        <button class="btn-3d btn-teal" onclick="resetToHome()">Ok</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="screen-overcome" class="screen">
+                <div style="text-align: center; background: white; padding: 24px; border-radius: 32px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">
+                    <div class="reward-graphic"><div class="draw-medal"></div></div>
+                    <h2 style="font-size:1.6rem; color:var(--text-dark); margin-bottom:12px;">Congratulations!</h2>
+                    <p style="color:#555; margin-bottom:24px; font-weight:600;">You have overcome your anxiety! Your kitten companion is so proud of you.</p>
+                    <button class="btn-3d btn-teal" onclick="triggerReward('pet')">🎁 Claim Reward</button>
+                </div>
+            </div>
+
+            <div id="screen-consistent" class="screen">
+                <div class="main-card">
+                    <h2>Awesome!</h2>
+                    <p style="margin: 16px 0; font-weight: 600;">You managed to stay consistent. Keep going!</p>
+                    <button class="btn-3d btn-teal" onclick="triggerReward('food')">Claim Reward</button>
+                </div>
+            </div>
+
+            <div id="screen-reward-claim" class="screen">
+                <div class="main-card" style="background-color: #fff; color: var(--text-dark); border: 4px solid var(--card-brown);">
+                    <h2 id="reward-title">You have unlocked a new pet!</h2>
+                    <div class="reward-graphic" id="reward-visual-node"></div>
+                    <button class="btn-3d btn-teal" onclick="resetToHome()">Ok</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── BOTTOM NAVIGATION — only index.html & breathe.html active ── -->
+        <nav class="bottom-nav">
+            <div class="nav-item"          data-page="breathe.html">  <span class="nav-icon">🍃</span><span>Breathe</span></div>
+            <div class="nav-item disabled" data-page="logs.html">      <span class="nav-icon">📋</span><span>Logs</span></div>
+            <div class="nav-item active"   data-page="index.html">     <span class="nav-icon">🏠</span><span>Home</span></div>
+            <div class="nav-item" data-page="safespace.html"> <span class="nav-icon">🐾</span><span>Safe Space</span></div>
+            <div class="nav-item" data-page="growth.html">    <span class="nav-icon">📈</span><span>Growth</span></div>
+        </nav>
+
+    </div>
+
+    <script>
+        /* ============================================================
+           CONSTANTS
+           ============================================================ */
+
+        /** Pages with a working HTML file — all others are disabled. */
+        const ACTIVE_PAGES = ['index.html', 'breathe.html', 'growth.html', 'safespace.html'];
+
+        /* ============================================================
+           APP ENGINE — Global State
+           ============================================================ */
+        let appState = {
+            currentScreen: 'screen-home',
+            mindInput: '',
+            fearSelected: '',
+            timerDuration: 0,
+            timerIntervalId: null,
+            targetTimestamp: null,
+            currentTrackMode: 'initial'
+        };
+
+        /* ============================================================
+           DATA PERSISTENCE — localStorage counters
+           Shared keys with breathe.html so the banner stays in sync.
+           ============================================================ */
+        let totalPets = parseInt(localStorage.getItem('ot_pets') || '0');
+        let totalFood = parseInt(localStorage.getItem('ot_food') || '0');
+
+        function updateUIVisualCounters() {
+            // Always re-read from storage to reflect changes made in breathe.html
+            totalPets = parseInt(localStorage.getItem('ot_pets') || '0');
+            totalFood = parseInt(localStorage.getItem('ot_food') || '0');
+            document.getElementById('stat-pets').innerText = totalPets;
+            document.getElementById('stat-food').innerText = totalFood;
+        }
+
+        /* ============================================================
+           UI ROUTER — screen transitions
+           ============================================================ */
+        function navigateTo(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(screenId);
+            if (target) {
+                target.classList.add('active');
+                appState.currentScreen = screenId;
+            }
+        }
+
+        /* ============================================================
+           SCREEN ACTION CONTROLLERS
+           ============================================================ */
+        function handleHomeContinue() {
+            appState.mindInput    = document.getElementById('input-mind').value.trim() || "Action";
+            appState.fearSelected = document.getElementById('select-fear').value;
+
+            let suggestionElement = document.getElementById('suggestion-text');
+
+            if (appState.fearSelected === "Fear of failure") {
+                suggestionElement.innerText = `Just ${appState.mindInput} for 5 minutes`;
+            } else if (appState.fearSelected === "Fear of wasting time") {
+                suggestionElement.innerText = "Collect one piece of evidence first";
+            } else if (appState.fearSelected === "Fear of judgement") {
+                suggestionElement.innerText = `${appState.mindInput} privately for 5 minutes`;
+            } else {
+                suggestionElement.innerText = `Try to ${appState.mindInput} for 5 minutes`;
+            }
+
+            appState.timerDuration    = 0.1 * 60;
+            appState.currentTrackMode = 'initial';
+            navigateTo('screen-suggestion');
+        }
+
+        function startTimerSession() {
+            navigateTo('screen-timer');
+            document.getElementById('timer-label').innerText = "FOCUSING...";
+
+            appState.targetTimestamp = Date.now() + (appState.timerDuration * 1000);
+            localStorage.setItem('ot_target_time', appState.targetTimestamp);
+
+            runLiveTimerLoop();
+        }
+
+        function runLiveTimerLoop() {
+            if (appState.timerIntervalId) clearInterval(appState.timerIntervalId);
+
+            appState.timerIntervalId = setInterval(() => {
+                let remaining = Math.round((appState.targetTimestamp - Date.now()) / 1000);
+
+                if (remaining <= 0) {
+                    clearInterval(appState.timerIntervalId);
+                    document.getElementById('time-display').innerText = "00:00";
+                    localStorage.removeItem('ot_target_time');
+                    handleTimerCompletionPipeline();
+                } else {
+                    appState.timerDuration = remaining;
+                    let mins = Math.floor(remaining / 60).toString().padStart(2, '0');
+                    let secs = (remaining % 60).toString().padStart(2, '0');
+                    document.getElementById('time-display').innerText = `${mins}:${secs}`;
+                }
+            }, 250);
+        }
+
+        function stopTimerClick() {
+            clearInterval(appState.timerIntervalId);
+            appState.timerDuration = Math.round((appState.targetTimestamp - Date.now()) / 1000);
+            navigateTo('screen-quit-confirm');
+        }
+
+        function confirmQuitResponse(shouldContinue) {
+            if (shouldContinue) {
+                appState.targetTimestamp = Date.now() + (appState.timerDuration * 1000);
+                navigateTo('screen-timer');
+                runLiveTimerLoop();
+            } else {
+                resetToHome();
+            }
+        }
+
+        function handleTimerCompletionPipeline() {
+            if (appState.currentTrackMode === 'initial') {
+                navigateTo('screen-reflection');
+            } else {
+                navigateTo('screen-consistent');
+            }
+        }
+
+        function handleReflection(userChoice) {
+            if (userChoice === 'No') {
+                navigateTo('screen-outcome-yes');
+            } else if (userChoice === 'Partly') {
+                document.getElementById('outcome-track-msg').innerText = "You still have time to consider. Good luck!";
+                document.getElementById('outcome-continue-btn').innerText = "Continue";
+                document.getElementById('outcome-quit-btn').innerText     = "Quit";
+                appState.currentTrackMode = 'partly';
+                navigateTo('screen-outcome-track');
+            } else if (userChoice === 'Yes') {
+                document.getElementById('outcome-track-msg').innerText = "You are on the right track!";
+                document.getElementById('outcome-continue-btn').innerText = "Continue";
+                document.getElementById('outcome-quit-btn').innerText     = "Quit";
+                appState.currentTrackMode = 'yes-pivot';
+                navigateTo('screen-outcome-track');
+            }
+        }
+
+        function handleOutcomeAction(actionType) {
+            if (appState.currentTrackMode === 'partly') {
+                if (actionType === 'quit') {
+                    resetToHome();
+                } else {
+                    appState.timerDuration    = 0.1 * 60;
+                    appState.currentTrackMode = 'initial';
+                    startTimerSession();
+                }
+            } else if (appState.currentTrackMode === 'yes-pivot') {
+                if (actionType === 'quit') {
+                    navigateTo('screen-overcome');
+                } else {
+                    appState.timerDuration    = 0.3 * 60;
+                    appState.currentTrackMode = 'extended';
+                    startTimerSession();
+                }
+            }
+        }
+
+        /* ============================================================
+           REWARD PERSISTENCE
+           ============================================================ */
+        function triggerReward(type) {
+            let titleNode       = document.getElementById('reward-title');
+            let visualContainer = document.getElementById('reward-visual-node');
+            visualContainer.innerHTML = '';
+
+            if (type === 'pet') {
+                totalPets++;
+                localStorage.setItem('ot_pets', totalPets);
+                titleNode.innerText = "You have unlocked a new pet!";
+                let petBox = document.createElement('div');
+                petBox.className = 'draw-kitten';
+                visualContainer.appendChild(petBox);
+            } else {
+                totalFood++;
+                localStorage.setItem('ot_food', totalFood);
+                titleNode.innerText = "You have gained cat food!";
+                let foodBox = document.createElement('div');
+                foodBox.className = 'draw-food';
+                visualContainer.appendChild(foodBox);
+            }
+
+            updateUIVisualCounters();
+            navigateTo('screen-reward-claim');
+        }
+
+        function resetToHome() {
+            if (appState.timerIntervalId) clearInterval(appState.timerIntervalId);
+            localStorage.removeItem('ot_target_time');
+            appState.currentTrackMode = 'initial';
+            navigateTo('screen-home');
+        }
+
+        /* ============================================================
+           BOTTOM NAVIGATION — fixed: only active pages get listeners
+           ============================================================ */
+        function initBottomNav() {
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+                const page = item.getAttribute('data-page');
+
+                if (!ACTIVE_PAGES.includes(page)) {
+                    // Already has .disabled class in HTML — no listener needed
+                    return;
+                }
+
+                item.addEventListener('click', () => {
+                    window.location.href = page;
+                });
+            });
+        }
+
+        /* ============================================================
+           INITIALISATION
+           ============================================================ */
+        window.onload = function () {
+            updateUIVisualCounters();
+            initBottomNav();
+
+            // Resume a timer that was running when the user left the page
+            let savedTarget = localStorage.getItem('ot_target_time');
+            if (savedTarget) {
+                let parsedTarget = parseInt(savedTarget);
+                if (parsedTarget > Date.now()) {
+                    appState.targetTimestamp = parsedTarget;
+                    navigateTo('screen-timer');
+                    runLiveTimerLoop();
+                } else {
+                    localStorage.removeItem('ot_target_time');
+                }
+            }
+        };
+    </script>
+</body>
+</html>
