@@ -407,8 +407,8 @@
                 <div class="main-card">
                     <h2>Are you sure you want to quit?</h2>
                     <div style="margin-top:20px; display:flex; gap:16px;">
-                        <button class="btn-3d btn-red" onclick="confirmQuitResponse(false)">No</button>
-                        <button class="btn-3d btn-teal" onclick="confirmQuitResponse(true)">Yes</button>
+                        <button class="btn-3d btn-red" onclick="confirmQuitResponse(false)">Quit</button>
+                        <button class="btn-3d btn-teal" onclick="confirmQuitResponse(true)">Continue</button>
                     </div>
                 </div>
             </div>
@@ -549,7 +549,7 @@
                 suggestionElement.innerText = `Try to ${appState.mindInput} for 5 minutes`;
             }
 
-            appState.timerDuration    = 0.1 * 60;
+            appState.timerDuration    = 5 * 60;
             appState.currentTrackMode = 'initial';
             navigateTo('screen-suggestion');
         }
@@ -631,7 +631,7 @@
                 if (actionType === 'quit') {
                     resetToHome();
                 } else {
-                    appState.timerDuration    = 0.1 * 60;
+                    appState.timerDuration    = 5 * 60;
                     appState.currentTrackMode = 'initial';
                     startTimerSession();
                 }
@@ -639,7 +639,7 @@
                 if (actionType === 'quit') {
                     navigateTo('screen-overcome');
                 } else {
-                    appState.timerDuration    = 0.3 * 60;
+                    appState.timerDuration    = 30 * 60;
                     appState.currentTrackMode = 'extended';
                     startTimerSession();
                 }
