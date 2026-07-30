@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purrfect Peace – Breathe</title>
 
-    <!-- Google Fonts: Fredoka for playful, friendly feel matching evaluate.html -->
+    <!-- Google Fonts: Fredoka for playful, friendly feel matching index.html -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         /* ============================================================
            1. DESIGN SYSTEM & CSS CUSTOM PROPERTIES
-              Mirrors evaluate.html token system exactly for visual
+              Mirrors index.html token system exactly for visual
               consistency across the app.
            ============================================================ */
         :root {
@@ -64,7 +64,7 @@
         }
 
         /* ============================================================
-           3. PHONE CONTAINER — identical to evaluate.html
+           3. PHONE CONTAINER — identical to index.html
            ============================================================ */
         .phone-container {
             width: 100%;
@@ -81,7 +81,7 @@
         }
 
         /* ============================================================
-           4. APP BAR HEADER — identical to evaluate.html
+           4. APP BAR HEADER — identical to index.html
            ============================================================ */
         .app-header {
             padding: 20px 24px 10px;
@@ -100,7 +100,7 @@
             color: #0d4f75;
         }
 
-        /* Cat avatar with ears — identical to evaluate.html */
+        /* Cat avatar with ears — identical to index.html */
         .avatar-placeholder {
             width: 36px;
             height: 36px;
@@ -130,7 +130,7 @@
         }
 
         /* ============================================================
-           5. PERSISTENT STATS BANNER — identical to evaluate.html
+           5. PERSISTENT STATS BANNER — identical to index.html
            ============================================================ */
         .stats-banner {
             display: flex;
@@ -204,7 +204,7 @@
         }
 
         /* ============================================================
-           7. REUSABLE CARD — identical card-brown style from evaluate.html
+           7. REUSABLE CARD — identical card-brown style from index.html
            ============================================================ */
         .main-card {
             background-color: var(--card-brown);
@@ -256,7 +256,7 @@
         }
 
         /* ============================================================
-           8. SQUISHY 3D BUTTONS — identical to evaluate.html
+           8. SQUISHY 3D BUTTONS — identical to index.html
            ============================================================ */
         .btn-3d {
             position: relative;
@@ -495,7 +495,7 @@
         }
 
         /* ============================================================
-           12. CSS DRAWING: MEDAL (reused from evaluate.html style)
+           12. CSS DRAWING: MEDAL (reused from index.html style)
            ============================================================ */
         .draw-medal {
             width: 80px;
@@ -521,7 +521,7 @@
         }
 
         /* ============================================================
-           14. BOTTOM NAVIGATION BAR — identical to evaluate.html
+           14. BOTTOM NAVIGATION BAR — identical to index.html
            ============================================================ */
         .bottom-nav {
             height: 72px;
@@ -626,7 +626,7 @@
 
             <div class="breathe-cycle-text" id="cycle-counter">Cycle 1 of 4</div>
 
-            <!-- Stop button (same style as timer screen in evaluate.html) -->
+            <!-- Stop button (same style as timer screen in index.html) -->
             <button class="btn-3d btn-red" style="max-width:200px;" onclick="handleStopBreathing()">
                 Stop
             </button>
@@ -686,12 +686,12 @@
     <!-- /screen-content -->
 
     <!-- ================================================================
-         BOTTOM NAVIGATION — only evaluate.html & breathe.html active
+         BOTTOM NAVIGATION — only index.html & breathe.html active
          ================================================================ -->
     <nav class="bottom-nav" aria-label="Main navigation">
         <div class="nav-item active"    data-page="breathe.html"><span class="nav-icon">🍃</span><span>Breathe</span></div>
         <div class="nav-item disabled"    data-page="logs.html">   <span class="nav-icon">📋</span><span>Logs</span></div>
-        <div class="nav-item"             data-page="evaluate.html">  <span class="nav-icon">🏠</span><span>Evaluate</span></div>
+        <div class="nav-item"             data-page="index.html">  <span class="nav-icon">🏠</span><span>Evaluate</span></div>
         <div class="nav-item"    data-page="safespace.html"><span class="nav-icon">🐾</span><span>Safe Space</span></div>
         <div class="nav-item"             data-page="growth.html"> <span class="nav-icon">📈</span><span>Growth</span></div>
     </nav>
@@ -709,7 +709,7 @@
        ============================================================ */
 
     /** Pages that have a working HTML file — all others are disabled. */
-    const ACTIVE_PAGES = ['evaluate.html', 'breathe.html', 'growth.html', 'safespace.html'];
+    const ACTIVE_PAGES = ['index.html', 'breathe.html', 'growth.html', 'safespace.html'];
 
     /** Breathing technique definitions. */
     const TECHNIQUES = [
@@ -777,7 +777,7 @@
 
     /* ============================================================
        C. DATA PERSISTENCE — localStorage
-          Mirrors evaluate.html counter keys (ot_pets, ot_food) so the
+          Mirrors index.html counter keys (ot_pets, ot_food) so the
           stats banner stays in sync across both pages.
        ============================================================ */
 
