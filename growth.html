@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purrfect Peace – Growth</title>
 
-    <!-- Google Fonts: Fredoka — matches evaluate.html & breathe.html exactly -->
+    <!-- Google Fonts: Fredoka — matches index.html & breathe.html exactly -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         /* ============================================================
            1. DESIGN SYSTEM & CSS CUSTOM PROPERTIES
-              Mirrors the evaluate.html token system for visual consistency.
+              Mirrors the index.html token system for visual consistency.
            ============================================================ */
         :root {
             /* Core palette — shared across all app pages */
@@ -65,7 +65,7 @@
         }
 
         /* ============================================================
-           3. PHONE CONTAINER — identical dimensions to evaluate.html
+           3. PHONE CONTAINER — identical dimensions to index.html
            ============================================================ */
         .phone-container {
             width: 100%;
@@ -82,7 +82,7 @@
         }
 
         /* ============================================================
-           4. APP HEADER — identical to evaluate.html
+           4. APP HEADER — identical to index.html
            ============================================================ */
         .app-header {
             padding: 20px 24px 10px;
@@ -101,7 +101,7 @@
             color: #0d4f75;
         }
 
-        /* Cat avatar with ears — identical to evaluate.html */
+        /* Cat avatar with ears — identical to index.html */
         .avatar-placeholder {
             width: 36px;
             height: 36px;
@@ -131,7 +131,7 @@
         }
 
         /* ============================================================
-           5. PERSISTENT STATS BANNER — identical to evaluate.html
+           5. PERSISTENT STATS BANNER — identical to index.html
            ============================================================ */
         .stats-banner {
             display: flex;
@@ -208,7 +208,7 @@
         }
 
         /* ============================================================
-           8. CARDS — matches evaluate.html .main-card style exactly
+           8. CARDS — matches index.html .main-card style exactly
            ============================================================ */
         .main-card {
             background-color: var(--card-brown);
@@ -280,7 +280,7 @@
         }
 
         /* ============================================================
-           9. INPUTS — matches evaluate.html .app-input style
+           9. INPUTS — matches index.html .app-input style
            ============================================================ */
         .app-input {
             width: 100%;
@@ -301,7 +301,7 @@
         }
 
         /* ============================================================
-           10. SQUISHY 3D BUTTONS — identical to evaluate.html
+           10. SQUISHY 3D BUTTONS — identical to index.html
            ============================================================ */
         .btn-3d {
             position: relative;
@@ -579,7 +579,7 @@
         }
 
         /* ============================================================
-           15. BOTTOM NAVIGATION — identical to evaluate.html
+           15. BOTTOM NAVIGATION — identical to index.html
            ============================================================ */
         .bottom-nav {
             height: 72px;
@@ -649,9 +649,9 @@
          ================================================================ -->
     <div class="screen-content">
 
-        <!-- ── VIEW 1: ENTRY / LINK FROM Evaluate ──────────────────── -->
+        <!-- ── VIEW 1: ENTRY / LINK FROM Index ──────────────────── -->
         <!--
-            Minimal landing that mirrors evaluate.html's quick-access feel.
+            Minimal landing that mirrors index.html's quick-access feel.
             Existing logic: navigates to view-setup on Continue.
         -->
         <main id="view-home" class="view-screen active" aria-label="Growth home">
@@ -779,7 +779,7 @@
     <nav class="bottom-nav" aria-label="Main navigation">
         <div class="nav-item"          data-page="breathe.html">   <span class="nav-icon">🍃</span><span>Breathe</span></div>
         <div class="nav-item disabled" data-page="logs.html">       <span class="nav-icon">📋</span><span>Logs</span></div>
-        <div class="nav-item"          data-page="evaluate.html">      <span class="nav-icon">🏠</span><span>Evaluate</span></div>
+        <div class="nav-item"          data-page="index.html">      <span class="nav-icon">🏠</span><span>Evaluate</span></div>
         <div class="nav-item" data-page="safespace.html">  <span class="nav-icon">🐾</span><span>Safe Space</span></div>
         <div class="nav-item active"   data-page="growth.html">     <span class="nav-icon">📈</span><span>Growth</span></div>
     </nav>
@@ -797,7 +797,7 @@
        ============================================================ */
 
     /** Pages with a working HTML file. Everything else is disabled. */
-    const ACTIVE_PAGES = ['evaluate.html', 'breathe.html', 'growth.html', 'safespace.html'];
+    const ACTIVE_PAGES = ['index.html', 'breathe.html', 'growth.html', 'safespace.html'];
 
     /** All possible bingo winning patterns (rows, columns, diagonals). */
     const BINGO_PATTERNS = [
@@ -824,7 +824,7 @@
        C. DATA PERSISTENCE — localStorage
           Bingo game state is saved under 'purrfect_bingo_state'.
           Pet/food counters use the shared keys 'ot_pets' / 'ot_food'
-          so the stats banner stays in sync with evaluate.html & breathe.html.
+          so the stats banner stays in sync with index.html & breathe.html.
        ============================================================ */
 
     /** Read a numeric counter from localStorage safely. */
