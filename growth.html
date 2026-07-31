@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purrfect Peace – Growth</title>
 
-    <!-- Google Fonts: Fredoka — matches index.html & breathe.html exactly -->
+    <!-- Google Fonts: Fredoka -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         /* ============================================================
            1. DESIGN SYSTEM & CSS CUSTOM PROPERTIES
-              Mirrors the index.html token system for visual consistency.
            ============================================================ */
         :root {
             /* Core palette — shared across all app pages */
@@ -65,7 +64,7 @@
         }
 
         /* ============================================================
-           3. PHONE CONTAINER — identical dimensions to index.html
+           3. PHONE CONTAINER
            ============================================================ */
         .phone-container {
             width: 100%;
@@ -82,7 +81,7 @@
         }
 
         /* ============================================================
-           4. APP HEADER — identical to index.html
+           4. APP HEADER
            ============================================================ */
         .app-header {
             padding: 20px 24px 10px;
@@ -101,7 +100,7 @@
             color: #0d4f75;
         }
 
-        /* Cat avatar with ears — identical to index.html */
+        /* Cat avatar with ears*/
         .avatar-placeholder {
             width: 36px;
             height: 36px;
@@ -131,7 +130,7 @@
         }
 
         /* ============================================================
-           5. PERSISTENT STATS BANNER — identical to index.html
+           5. PERSISTENT STATS BANNER
            ============================================================ */
         .stats-banner {
             display: flex;
@@ -294,6 +293,7 @@
             margin-bottom: 12px;
             outline: none;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+            box-sizing: border-box;
         }
 
         .app-input[type="date"] {
@@ -490,49 +490,61 @@
         .modal-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.42);
+            background: rgba(0, 0, 0, 0.42);
             display: none;
             justify-content: center;
-            align-items: flex-end;
+            align-items: center; /* FIX: Force alignment to the exact center of screen */
             z-index: 100;
+            padding: 20px; /* Safety padding for small phone displays */
         }
 
-        .modal-overlay.active { display: flex; }
+        .modal-overlay.active { 
+            display: flex; 
+        }
 
-        /* Bottom sheet — slides up on open */
+        /* Small Goal Card — Centred, small and compact like the rewards */
         .bottom-sheet {
-            width: 100%;
             background: #ffffff;
-            border-radius: 28px 28px 0 0;
-            padding: 22px 20px 28px;
-            box-shadow: 0 -6px 20px rgba(0,0,0,0.12);
-            transform: translateY(100%);
-            transition: transform 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+            width: 88%; /* Match standard reward box size layout width */
+            max-width: 360px; /* Cap size scaling limit on wider screens */
+            border-radius: 28px; /* Safe consistent circular corners */
+            padding: 28px 24px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22);
+            border: 3px solid var(--card-brown); /* Balanced styling with popups */
             display: none;
+            animation: fadeScaleIn 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
         }
 
+        /* Ensure active display setup ignores old slide animation system */
         .modal-overlay.active .bottom-sheet {
-            transform: translateY(0);
+            transform: none; 
         }
 
         .bottom-sheet h3 {
-            font-size: 1.1rem;
+            font-size: 1.3rem; /* Match exact heading scale from popup alert */
             font-weight: 700;
             margin-bottom: 14px;
             color: var(--text-dark);
+            text-align: center; /* Balanced centered title alignment */
         }
 
-        /* Centre popup alert — scales in */
+        /* Centre popup alert — Cleaned up sizing */
         .popup-alert {
             background: var(--btn-cream);
-            width: 88%;
-            margin: auto;
+            width: 88%; 
+            max-width: 360px; 
             border-radius: 28px;
             padding: 28px 24px;
             text-align: center;
             box-shadow: 0 6px 24px rgba(0,0,0,0.22);
             border: 3px solid var(--card-brown);
-            display: none;
+            
+            /* FIX: Force vertical line-by-line layout stack */
+            display: none; /* Keep this as none, your JS changes this to flex/block when opening */
+            flex-direction: column; 
+            align-items: center;    /* Keeps elements perfectly centered horizontally */
+            gap: 12px;              /* Adds clean, even spacing between each line */
+            
             animation: fadeScaleIn 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
         }
 
@@ -564,6 +576,7 @@
             color: #555;
             font-weight: 500;
         }
+
 
         /* ============================================================
            14. CONFETTI CANVAS — sits above content, no pointer events
@@ -759,7 +772,8 @@
             </div>
         </div>
 
-        <!-- Centre popup alert: reward / time-out messages -->
+        
+        
         <div class="popup-alert" id="alert-box-container" aria-live="assertive">
             <div class="alert-graphic-box" id="alert-graphic" aria-hidden="true">🐈</div>
             <h3 id="alert-title">Congratulations!</h3>
@@ -809,13 +823,15 @@
     /* ============================================================
        B. APPLICATION STATE
        ============================================================ */
-    let appState = {
+    const DEFAULT_STATE = {
         currentView:    'view-home',
         bigGoal:        '',
         targetDate:     '',
         tiles:          Array(25).fill(null).map(() => ({ text: '', done: false })),
         completedLines: []
     };
+
+    let appState = JSON.parse(localStorage.getItem('purrfect_bingo_state')) || DEFAULT_STATE;
 
     let targetedTileIndex     = null;    // which tile is being edited
     let currentAlertContext   = '';      // controls multi-step reward modal flow
@@ -827,21 +843,17 @@
           so the stats banner stays in sync with index.html & breathe.html.
        ============================================================ */
 
-    /** Read a numeric counter from localStorage safely. */
-    function readCounter(key) {
-        return parseInt(localStorage.getItem(key) || '0', 10);
-    }
-
-    /** Write a numeric counter then repaint the stats banner. */
-    function writeCounter(key, value) {
-        localStorage.setItem(key, value);
-        refreshStatsBanner();
-    }
-
     /** Pull the latest persisted values and update the banner. */
     function refreshStatsBanner() {
-        document.getElementById('stat-pets').textContent = readCounter('ot_pets');
-        document.getElementById('stat-food').textContent = readCounter('ot_food');
+        // Directly pull values out of localStorage safely with a fallback default of 0
+        const pets = parseInt(localStorage.getItem('ot_pets')) || 0;
+        const food = parseInt(localStorage.getItem('ot_food')) || 0;
+        
+        const petElement = document.getElementById('stat-pets');
+        const foodElement = document.getElementById('stat-food');
+        
+        if (petElement) petElement.textContent = pets;
+        if (foodElement) foodElement.textContent = food;
     }
 
     /** Persist the full bingo state object. */
@@ -1044,6 +1056,19 @@
 
         if (newlyCompleted > 0 && triggerAnimationEffects) {
             executeConfettiExplosionEffect();
+            // 1. Persist the reward into storage instantly when line forms
+            let currentFood = parseInt(localStorage.getItem('ot_food')) || 0;
+            localStorage.setItem('ot_food', currentFood + 5);
+            refreshStatsBanner();
+
+            // 2. Prepare the popup interface text elements
+            document.getElementById('alert-graphic').textContent    = '🍼';
+            document.getElementById('alert-title').textContent      = 'Letter Completion!';
+            document.getElementById('alert-message').textContent    = 'Earned 5 cat foods!';
+            document.getElementById('alert-action-btn').textContent = 'Ok';
+            document.getElementById('alert-action-btn').className   = 'btn-3d btn-teal';
+            currentAlertContext = 'LETTER_CATFOOD_UNLOCK';
+            openModalLayout('alert-box-container');
         }
 
         appState.completedLines = totalActiveLines;
@@ -1104,62 +1129,59 @@
      * Advances through: Goal → New Pet → (Bonus Food) → Reset.
      */
     function handleAlertActionClick() {
-        if (currentAlertContext === 'NORMAL_PET_UNLOCK' || currentAlertContext === 'BINGO_PET_UNLOCK') {
-            // Step 1: unlock a new pet — persist to localStorage
-            const newPets = readCounter('ot_pets') + 1;
-            writeCounter('ot_pets', newPets);
-
-            document.getElementById('alert-graphic').textContent    = '🐱';
-            document.getElementById('alert-title').textContent      = 'New Companion!';
-            document.getElementById('alert-message').textContent    = 'You have unlocked a new pet!';
-            document.getElementById('alert-action-btn').textContent = 'Ok';
-            document.getElementById('alert-action-btn').className   = 'btn-3d btn-teal';
-
-            // BINGO bonus: next step grants cat food
-            currentAlertContext = (currentAlertContext === 'BINGO_PET_UNLOCK')
-                ? 'CAT_FOOD_BONUS'
-                : 'SYSTEM_HARD_RESET';
-
-            // Re-animate the popup for the new message
-            const popup = document.getElementById('alert-box-container');
-            popup.style.animation = 'none';
-            void popup.offsetWidth;
-            popup.style.animation = '';
-
-        } else if (currentAlertContext === 'CAT_FOOD_BONUS') {
-            // Step 2 (BINGO only): gain cat food — persist to localStorage
-            const newFood = readCounter('ot_food') + 1;
-            writeCounter('ot_food', newFood);
-
-            document.getElementById('alert-graphic').textContent    = '🍼';
-            document.getElementById('alert-title').textContent      = 'Bonus Gained!';
-            document.getElementById('alert-message').textContent    = 'You have gained cat food!';
-            document.getElementById('alert-action-btn').textContent = 'Ok';
-
-            currentAlertContext = 'SYSTEM_HARD_RESET';
-
-            const popup = document.getElementById('alert-box-container');
-            popup.style.animation = 'none';
-            void popup.offsetWidth;
-            popup.style.animation = '';
-
-        } else if (currentAlertContext === 'SYSTEM_HARD_RESET' || currentAlertContext === 'TIMEOUT_RESET') {
-            // Final step: wipe all bingo state and return to setup
-            appState.bigGoal        = '';
-            appState.targetDate     = '';
-            appState.tiles          = Array(25).fill(null).map(() => ({ text: '', done: false }));
+        // Step 0: Mid-Session Letter Completion Reward
+        if (currentAlertContext === 'LETTER_CATFOOD_UNLOCK') {
+            // FIX: Simply drop the overlay window and let the user continue their game!
+            closeActiveModal(); 
+            currentAlertContext = ''; 
+        }
+        
+        // Step 1: Normal Pet Reward
+        else if (currentAlertContext === 'NORMAL_PET_UNLOCK') {
+            let currentPets = parseInt(localStorage.getItem('ot_pets')) || 0;
+            localStorage.setItem('ot_pets', currentPets + 1);
+            
+            document.getElementById('alert-graphic').textContent = '🐱';
+            document.getElementById('alert-title').textContent = 'Bingo Bonus!';
+            document.getElementById('alert-message').textContent = 'You have unlocked a new pet!';
+            
+            refreshStatsBanner();
+            currentAlertContext = 'SYSTEM_HARD_RESET'; // Next click executes wipe reset
+        } 
+        
+        // Step 2: Bingo Double Bonus Reward (Gives Pet and Food instantly at once!)
+        else if (currentAlertContext === 'BINGO_PET_UNLOCK') {
+            let currentPets = parseInt(localStorage.getItem('ot_pets')) || 0;
+            let currentFood = parseInt(localStorage.getItem('ot_food')) || 0;
+            
+            localStorage.setItem('ot_pets', currentPets + 1);
+            localStorage.setItem('ot_food', currentFood + 25); // Instantly gives +25 food bonus
+            
+            document.getElementById('alert-graphic').textContent = '🐱🍼';
+            document.getElementById('alert-title').textContent = 'Bingo Double Bonus!';
+            document.getElementById('alert-message').textContent = 'Unlocked New Pet & Earned 25 Cat Foods!';
+            
+            refreshStatsBanner();
+            currentAlertContext = 'SYSTEM_HARD_RESET'; // Next click executes wipe reset
+        } 
+        
+        // Step 3: Global System Reset & Clean Wipe Out
+        else if (currentAlertContext === 'SYSTEM_HARD_RESET' || currentAlertContext === 'TIMEOUT_RESET') {
+            appState.bigGoal = '';
+            appState.targetDate = '';
+            appState.tiles = Array(25).fill(null).map(() => ({ text: '', done: false }));
             appState.completedLines = [];
 
-            document.getElementById('big-goal-input').value = '';
+            const goalInput = document.getElementById('big-goal-input');
+            if (goalInput) goalInput.value = '';
 
+            saveStateToStorage();
             renderBingoGridEngine();
             evaluateBingoLineCompletion(false);
             closeActiveModal();
-            saveStateToStorage();
-
             // Reset button style for next use
             document.getElementById('alert-action-btn').className = 'btn-3d btn-teal';
-
+            // Return back to home screen
             navigateTo('view-home', 'left');
         }
     }
