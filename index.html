@@ -1046,7 +1046,7 @@
                 suggestionElement.innerText = `Try to ${appState.mindInput} for 5 minutes`;
             }
 
-            appState.timerDuration    = 0.05 * 60;
+            appState.timerDuration    = 5 * 60;
             appState.currentTrackMode = 'initial';
             appState.firstSessionCompletedMins = 0;
             appState.secondSessionCompletedMins = 0;
@@ -1144,7 +1144,7 @@
                 if (actionType === 'quit') {
                     resetToEvaluate();
                 } else {
-                    appState.timerDuration    = 0.05 * 60;
+                    appState.timerDuration    = 5 * 60;
                     appState.currentTrackMode = 'initial';
                     startTimerSession();
                 }
@@ -1176,7 +1176,7 @@
         }
 
         function startSecondAdjustedSession() {
-            appState.timerDuration = appState.customSecondDurationMins * 1;
+            appState.timerDuration = appState.customSecondDurationMins * 60;
             appState.currentTrackMode = 'extended';
             startTimerSession();
         }
