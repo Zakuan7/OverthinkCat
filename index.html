@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purrfect Peace</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>         
-    <script src="config.js"></script>
     <style>
         /* --- 1. DESIGN SYSTEM & RESET --- */
         :root {
@@ -1129,8 +1128,9 @@
         /* ============================================================
         SUPABASE CONFIGURATION — REPLACE WITH YOUR ACTUAL CREDENTIALS
         ============================================================ */
-        
-        const db = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+        const supabaseUrl = 'https://hvasisxszpmpswtqxmuf.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2YXNpc3hzenBtcHN3dHF4bXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1NjQwNzAsImV4cCI6MjEwMTE0MDA3MH0.OmJtVOrt8hMxfRmfVMJehBm5H7tpDufQM3YuVU1e0ok';
+        const db = supabase.createClient(supabaseUrl, supabaseKey);
 
         /* ============================================================
         AUDIO SYSTEM (UNCHANGED)
