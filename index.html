@@ -1432,6 +1432,7 @@
                 const { data, error } = await db
                     .from('leaderboard')
                     .select('username, total_time_spent')
+                    .eq('is_active', true) // FIX: Filter out the "soft deleted" users!
                     .order('total_time_spent', { ascending: false })
                     .limit(50);
 
