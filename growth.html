@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Purrfect Peace – Growth</title>
+    <title>Purrfect Peace</title>
 
-    <!-- Google Fonts: Fredoka -->
+    <!-- Google Fonts: Fredoka — matches index.html -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>         
+    <script src="Assets/config.js"></script>
     <style>
         /* ============================================================
            1. DESIGN SYSTEM & CSS CUSTOM PROPERTIES
@@ -36,7 +38,7 @@
             --countdown-red:   #c62828;
 
             /* Shared tokens */
-            --font-friendly:   'Fredoka', 'Nunito', system-ui, sans-serif;
+            --font-friendly:   'Fredoka', 'Quicksand', 'Nunito', system-ui, sans-serif;
             --radius-card:     32px;
             --radius-btn:      24px;
             --shadow-card:     0 8px 16px rgba(0,0,0,0.10);
@@ -80,15 +82,12 @@
             flex-direction: column;
         }
 
-        /* ============================================================
-           4. APP HEADER
-           ============================================================ */
+        /* --- 3. APP BAR HEADER --- */
         .app-header {
             padding: 20px 24px 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-shrink: 0;
         }
 
         .brand {
@@ -100,33 +99,117 @@
             color: #0d4f75;
         }
 
-        /* Cat avatar with ears*/
-        .avatar-placeholder {
-            width: 36px;
-            height: 36px;
-            background-color: #ffb84d;
+        .avatar-mini {
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            border: 2px solid white;
-            position: relative;
-            flex-shrink: 0;
+            background-color: #f7d6c8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            border: 2px solid var(--card-brown);
+            cursor: pointer;
         }
-        .avatar-placeholder::before,
-        .avatar-placeholder::after {
-            content: '';
-            position: absolute;
-            top: -4px;
-            width: 0; height: 0;
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-bottom: 8px solid #ffb84d;
-        }
-        .avatar-placeholder::before { left: 2px;  transform: rotate(-20deg); }
-        .avatar-placeholder::after  { right: 2px; transform: rotate(20deg);  }
 
-        .settings-btn {
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1b4965;
+        }
+
+        .settings-icon-btn {
             font-size: 1.5rem;
             cursor: pointer;
             opacity: 0.7;
+        }
+
+        /* ==========================================
+        MODALS & POPUPS
+        ========================================== */
+        .overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0,0,0,0.4);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        padding: 16px;
+        }
+
+        .overlay.active {
+        display: flex;
+        }
+
+        .modal-box {
+            width: 100%;
+            background-color: var(--card-brown);
+            border-radius: 24px;
+            padding: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .modal-close-btn {
+        position: absolute;
+        top: 12px;
+        right: 14px;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: var(--text-dark);
+        }
+
+        .modal-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: var(--text-dark);
+        }
+
+        /* Avatar Grid */
+        .avatar-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        width: 100%;
+        margin: 8px 0;
+        }
+
+        .avatar-option {
+        background: var(--panel-bg);
+        border-radius: 16px;
+        padding: 12px;
+        font-size: 36px;
+        text-align: center;
+        cursor: pointer;
+        border: 3px solid transparent;
+        }
+
+        .avatar-option.selected {
+        border-color: var(--btn-teal);
+        }
+
+        /* Buttons */
+        .modal-btn-row {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+        }
+
+        .btn {
+        flex: 1;
+        padding: 10px;
+        border-radius: 16px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        text-align: center;
         }
 
         /* ============================================================
@@ -643,13 +726,13 @@
     <canvas id="confetti-canvas" aria-hidden="true"></canvas>
 
     <!-- ── APP HEADER ─────────────────────────────────────────── -->
-    <header class="app-header">
+    <div class="app-header">
         <div class="brand">
-            <div class="avatar-placeholder" aria-hidden="true"></div>
-            <span>OverthinkCat</span>
+            <div id="headerAvatar" class="avatar-mini" onclick="openAvatarModal()">🐱</div>
+            <div id="headerUsername" class="header-title"></div>
         </div>
-        <div class="settings-btn" role="button" aria-label="Settings">⚙️</div>
-    </header>
+        <div class="settings-icon-btn" data-page="setting.html">⚙️</div>
+    </div>
 
     <!-- ── PERSISTENT STATS BANNER ────────────────────────────── -->
     <div class="stats-banner" aria-live="polite">
@@ -785,16 +868,35 @@
 
     </div>
 
+    <!-- Avatar Selection Modal -->
+    <div id="avatarModal" class="overlay" onclick="closeModalOnOuterClick(event, 'avatarModal')">
+      <div class="modal-box">
+        <button class="modal-close-btn" onclick="closeModal('avatarModal')">✖</button>
+        <div class="modal-title lang-choose-avatar">Choose Avatar</div>
+        
+        <div class="avatar-grid">
+          <div class="avatar-option selected" onclick="selectAvatarOption(this, '🐱')">🐱</div>
+          <div class="avatar-option" onclick="selectAvatarOption(this, '😸')">😸</div>
+          <div class="avatar-option" onclick="selectAvatarOption(this, '😼')">😼</div>
+          <div class="avatar-option" onclick="selectAvatarOption(this, '😽')">😽</div>
+        </div>
+
+        <div class="modal-btn-row">
+          <button class="btn btn-teal lang-save" onclick="saveAvatar()">Save</button>
+        </div>
+      </div>
+    </div>
     <!-- ================================================================
          BOTTOM NAVIGATION
          Active pages: index, breathe, growth.
          Disabled (greyed): logs, safespace (not yet built).
-         ================================================================ -->
-    <nav class="bottom-nav" aria-label="Main navigation">
+    ================================================================ -->
+    <nav class="bottom-nav">
         <div class="nav-item"          data-page="breathe.html">   <span class="nav-icon">🍃</span><span>Breathe</span></div>
         <div class="nav-item disabled" data-page="logs.html">       <span class="nav-icon">📋</span><span>Logs</span></div>
+        <!-- <div class="nav-item"           data-page="battle.html">   <span class="nav-icon">⚔️</span><span>Battle</span></div> -->
         <div class="nav-item"          data-page="index.html">      <span class="nav-icon">🏠</span><span>Evaluate</span></div>
-        <div class="nav-item" data-page="safespace.html">  <span class="nav-icon">🐾</span><span>Safe Space</span></div>
+        <div class="nav-item"           data-page="safespace.html">  <span class="nav-icon">🐾</span><span>Safe Space</span></div>
         <div class="nav-item active"   data-page="growth.html">     <span class="nav-icon">📈</span><span>Growth</span></div>
     </nav>
 
@@ -811,8 +913,7 @@
        ============================================================ */
 
     /** Pages with a working HTML file. Everything else is disabled. */
-    const ACTIVE_PAGES = ['index.html', 'breathe.html', 'growth.html', 'safespace.html'];
-
+    const ACTIVE_PAGES = ['index.html', 'breathe.html', 'growth.html', 'safespace.html', 'setting.html', 'battle.html'];
     /** All possible bingo winning patterns (rows, columns, diagonals). */
     const BINGO_PATTERNS = [
         [0,1,2,3,4],   [5,6,7,8,9],   [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24], // rows
@@ -837,6 +938,86 @@
     let currentAlertContext   = '';      // controls multi-step reward modal flow
 
     /* ============================================================
+        SUPABASE AUTHENTICATION & LEADERBOARD
+        ============================================================ */
+        const db = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+
+        let currentUserId = null;
+        let currentUsername = "";
+
+        // Application State
+        const state = {
+        username: "Anonymous User",
+        // displayId: "",
+        avatar: "🐱",
+        tempSelectedAvatar: "🐱",
+        //notifications: false,
+        //language: "en"
+        };
+        /**
+         * PHASE 1: AUTOMATIC ANONYMOUS SIGN-IN
+         */
+        async function initializeUserSession() {
+            try {
+                let { data: { user } } = await db.auth.getUser();
+
+                if (!user) {
+                    const adjectives = ["Calm", "Chilled", "Serene", "Peaceful", "Gentle", "Mellow", "Tranquil"];
+                    const animals = ["Kitten", "Panda", "Koala", "Otter", "Sloth", "Fox", "Bunny"];
+                    const randomName = adjectives[Math.floor(Math.random() * adjectives.length)] + 
+                                        animals[Math.floor(Math.random() * animals.length)] + 
+                                        Math.floor(100 + Math.random() * 900);
+
+                    const { data, error } = await db.auth.signInAnonymously({
+                        options: { data: { display_name: randomName } }
+                    });
+
+                    if (error) throw error;
+                    user = data.user;
+                    
+                    // Check if user already exists in leaderboard
+                    const { data: existing } = await db
+                        .from('leaderboard')
+                        .select('id')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (!existing) {
+                        await db.from('leaderboard').insert([
+                            { id: user.id, username: randomName, total_time_spent: 0 }
+                        ]);
+                    }
+                }
+
+                currentUserId = user.id;
+                // Check your custom leaderboard table FIRST to see if the user changed their name!
+            let { data: customProfile } = await db
+            .from('leaderboard')
+            .select('username')
+            .eq('id', currentUserId)
+            .maybeSingle();
+            
+            // If they updated their name in the table, load it. Otherwise, fallback to the original default.
+            state.username = customProfile ? customProfile.username : (user.user_metadata.display_name || "Anonymous User");
+            state.displayId = currentUserId.substring(0, 8); // Safe string parsing extraction bounds
+            console.log(`Authenticated as: ${state.username} (${state.displayId})`);
+            
+            // Render baseline identities onto UI fields instantly
+            const displayNode = document.getElementById('displayUsername');
+            const headerNode = document.getElementById('headerUsername');
+            //const idNode = document.getElementById('displayId');
+            if (displayNode) displayNode.innerText = state.username;
+            if (headerNode) headerNode.innerText = state.username;
+            //if (idNode) idNode.innerText = state.displayId;
+            console.log(`Session synchronized as: ${state.username} (${state.displayId})`);
+
+            //await fetchGlobalLeaderboard();
+
+            } catch (err) {
+                console.error("Authentication setup failed:", err.message);
+            }
+        }
+    /* ============================================================
        C. DATA PERSISTENCE — localStorage
           Bingo game state is saved under 'purrfect_bingo_state'.
           Pet/food counters use the shared keys 'ot_pets' / 'ot_food'
@@ -845,15 +1026,10 @@
 
     /** Pull the latest persisted values and update the banner. */
     function refreshStatsBanner() {
-        // Directly pull values out of localStorage safely with a fallback default of 0
-        const pets = parseInt(localStorage.getItem('ot_pets')) || 0;
-        const food = parseInt(localStorage.getItem('ot_food')) || 0;
-        
-        const petElement = document.getElementById('stat-pets');
-        const foodElement = document.getElementById('stat-food');
-        
-        if (petElement) petElement.textContent = pets;
-        if (foodElement) foodElement.textContent = food;
+        totalPets = parseInt(localStorage.getItem('ot_pets') || '0');
+        totalFood = parseInt(localStorage.getItem('ot_food') || '0');
+        document.getElementById('stat-pets').innerText = totalPets;
+        document.getElementById('stat-food').innerText = totalFood;
     }
 
     /** Persist the full bingo state object. */
@@ -1238,17 +1414,41 @@
     }
 
     /* ============================================================
-       L. BOTTOM NAVIGATION — fixed: only ACTIVE_PAGES get listeners
-       ============================================================ */
+    MODAL CONTROLS
+    ============================================================ */
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function closeModalOnOuterClick(e, id) {
+      if (e.target.id === id) closeModal(id);
+    }
+
+    /* --- Test Case 1: Avatar & Username Editing & Copying ID --- */
+    function openAvatarModal() {
+      state.tempSelectedAvatar = state.avatar;
+      openModal('avatarModal');
+    }
+
+    function selectAvatarOption(element, catEmoji) {
+      document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+      element.classList.add('selected');
+      state.tempSelectedAvatar = catEmoji;
+    }
+
+    function saveAvatar() {
+      state.avatar = state.tempSelectedAvatar;
+      document.getElementById('headerAvatar').innerText = state.avatar;
+      //document.getElementById('mainAvatarDisplay').innerText = state.avatar;
+      closeModal('avatarModal');
+      //showToast("Avatar updated successfully!");
+    }
+
+    /* ============================================================
+    BOTTOM NAVIGATION
+    ============================================================ */
     function initBottomNav() {
-        document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+        document.querySelectorAll('.bottom-nav .nav-item, .settings-icon-btn').forEach(item => {
             const page = item.getAttribute('data-page');
-
-            if (!ACTIVE_PAGES.includes(page)) {
-                // Already has .disabled in HTML — no listener needed
-                return;
-            }
-
+            if (!ACTIVE_PAGES.includes(page)) return;
             item.addEventListener('click', () => {
                 window.location.href = page;
             });
@@ -1256,11 +1456,14 @@
     }
 
     /* ============================================================
-       M. INITIALISATION
-       ============================================================ */
-    window.addEventListener('load', () => {
-        // 1. Paint persisted stats banner
+    INITIALISATION
+    ============================================================ */
+    window.onload = async function() {
+        initBottomNav();
+
         refreshStatsBanner();
+        // Initialize Supabase session
+        await initializeUserSession();
 
         // 2. Set default target date to 35 days from today
         const defaultDate = new Date();
@@ -1297,10 +1500,7 @@
         } else {
             renderBingoGridEngine();
         }
-
-        // 4. Wire up navigation
-        initBottomNav();
-    });
+    };
 
 </script>
 </body>
