@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purrfect Peace</title>
+    <!-- Google Fonts: Fredoka — matches index.html -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>         
+    <script src="Assets/config.js"></script>
     <style>
         /* --- 1. DESIGN SYSTEM & RESET --- */
         :root {
@@ -72,30 +77,117 @@
             color: #0d4f75;
         }
 
-        .avatar-placeholder {
-            width: 36px;
-            height: 36px;
-            background-color: #ffb84d;
+        .avatar-mini {
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            border: 2px solid white;
-            position: relative;
+            background-color: #f7d6c8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            border: 2px solid var(--card-brown);
+            cursor: pointer;
         }
-        .avatar-placeholder::before, .avatar-placeholder::after {
-            content: '';
-            position: absolute;
-            top: -4px;
-            width: 0; height: 0;
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-bottom: 8px solid #ffb84d;
-        }
-        .avatar-placeholder::before { left: 2px; transform: rotate(-20deg); }
-        .avatar-placeholder::after { right: 2px; transform: rotate(20deg); }
 
-        .settings-btn {
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1b4965;
+        }
+
+        .settings-icon-btn {
             font-size: 1.5rem;
             cursor: pointer;
             opacity: 0.7;
+        }
+
+        /* ==========================================
+        MODALS & POPUPS
+        ========================================== */
+        .overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0,0,0,0.4);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        padding: 16px;
+        }
+
+        .overlay.active {
+        display: flex;
+        }
+
+        .modal-box {
+            width: 100%;
+            background-color: var(--card-brown);
+            border-radius: 24px;
+            padding: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .modal-close-btn {
+        position: absolute;
+        top: 12px;
+        right: 14px;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: var(--text-dark);
+        }
+
+        .modal-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: var(--text-dark);
+        }
+
+        /* Avatar Grid */
+        .avatar-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        width: 100%;
+        margin: 8px 0;
+        }
+
+        .avatar-option {
+        background: var(--panel-bg);
+        border-radius: 16px;
+        padding: 12px;
+        font-size: 36px;
+        text-align: center;
+        cursor: pointer;
+        border: 3px solid transparent;
+        }
+
+        .avatar-option.selected {
+        border-color: var(--btn-teal);
+        }
+
+        /* Buttons */
+        .modal-btn-row {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+        }
+
+        .btn {
+        flex: 1;
+        padding: 10px;
+        border-radius: 16px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        text-align: center;
         }
 
         /* --- 4. MAIN SCREEN AREA & TRANSITIONS --- */
@@ -136,11 +228,12 @@
             color: #ffffff;
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
             text-align: center;
+            width: 100%;
         }
 
         .main-card h2 {
             font-size: 1.4rem;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             font-weight: 600;
             line-height: 1.3;
         }
@@ -164,6 +257,7 @@
             font-weight: 600;
             margin-bottom: 12px;
             outline: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
         }
 
         /* --- 6. SQUISHY 3D BUTTONS --- */
@@ -181,6 +275,7 @@
             cursor: pointer;
             transition: transform 0.1s ease;
             transform: translateY(-4px);
+            letter-spacing: 0.3px;
         }
 
         .btn-3d:active {
@@ -321,6 +416,7 @@
             border-radius: 12px;
             margin: 0 16px;
             font-size: 0.9rem;
+            flex-shrink: 0;
         }
 
         /* --- 10. BOTTOM NAVIGATION BAR --- */
@@ -332,6 +428,7 @@
             justify-content: space-around;
             align-items: center;
             padding-bottom: env(safe-area-inset-bottom);
+            flex-shrink: 0;
         }
 
         .nav-item {
@@ -342,6 +439,7 @@
             font-weight: 700;
             color: #8c8269;
             cursor: pointer;
+            transition: color 0.2s;
         }
 
         .nav-item.active {
@@ -863,14 +961,16 @@
 <body>
 
     <div class="phone-container">
+        
+        <!-- Header -->
         <div class="app-header">
             <div class="brand">
-                <div class="avatar-placeholder"></div>
-                <span>OverthinkCat</span>
+                <div id="headerAvatar" class="avatar-mini" onclick="openAvatarModal()">🐱</div>
+                <div id="headerUsername" class="header-title"></div>
             </div>
-            <div class="settings-btn">⚙️</div>
+            <div class="settings-icon-btn" data-page="setting.html">⚙️</div>
         </div>
-
+        
         <div class="stats-banner">
             <span>🐱 Pets Unlocked: <span id="stat-pets">0</span></span>
             <span>🍼 Cat Food: <span id="stat-food">0</span></span>
@@ -1026,10 +1126,29 @@
 
         </div>
 
+        <!-- Avatar Selection Modal -->
+        <div id="avatarModal" class="overlay" onclick="closeModalOnOuterClick(event, 'avatarModal')">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeModal('avatarModal')">✖</button>
+            <div class="modal-title lang-choose-avatar">Choose Avatar</div>
+            
+            <div class="avatar-grid">
+            <div class="avatar-option selected" onclick="selectAvatarOption(this, '🐱')">🐱</div>
+            <div class="avatar-option" onclick="selectAvatarOption(this, '😸')">😸</div>
+            <div class="avatar-option" onclick="selectAvatarOption(this, '😼')">😼</div>
+            <div class="avatar-option" onclick="selectAvatarOption(this, '😽')">😽</div>
+            </div>
+
+            <div class="modal-btn-row">
+            <button class="btn btn-teal lang-save" onclick="saveAvatar()">Save</button>
+            </div>
+        </div>
+        </div>
         <!-- ── BOTTOM NAVIGATION ── -->
         <nav class="bottom-nav">
             <div class="nav-item"          data-page="breathe.html">  <span class="nav-icon">🍃</span><span>Breathe</span></div>
             <div class="nav-item disabled" data-page="logs.html">      <span class="nav-icon">📋</span><span>Logs</span></div>
+            <!-- <div class="nav-item"          data-page="battle.html">   <span class="nav-icon">⚔️</span><span>Battle</span></div> -->
             <div class="nav-item active"   data-page="index.html">     <span class="nav-icon">🏠</span><span>Evaluate</span></div>
             <div class="nav-item"          data-page="safespace.html"> <span class="nav-icon">🐾</span><span>Safe Space</span></div>
             <div class="nav-item"          data-page="growth.html">    <span class="nav-icon">📈</span><span>Growth</span></div>
@@ -1128,20 +1247,19 @@
         /* ============================================================
         SUPABASE CONFIGURATION — REPLACE WITH YOUR ACTUAL CREDENTIALS
         ============================================================ */
-        const supabaseUrl = 'https://hvasisxszpmpswtqxmuf.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2YXNpc3hzenBtcHN3dHF4bXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1NjQwNzAsImV4cCI6MjEwMTE0MDA3MH0.OmJtVOrt8hMxfRmfVMJehBm5H7tpDufQM3YuVU1e0ok';
-        const db = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        const db = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
 
         /* ============================================================
         AUDIO SYSTEM (UNCHANGED)
         ============================================================ */
         const TRACKS = [
-            { name: "Gentle Water Stream In Forest", url: "GentleWaterStream.mp3" },
-            { name: "River In Forest", url: "RiverInForest.mp3" },
-            { name: "Birds Singing In A Forest", url: "BirdsSinging.mp3" }
+            { name: "Gentle Water Stream In Forest", url: "Assets/GentleWaterStream.mp3" },
+            { name: "River In Forest", url: "Assets/RiverInForest.mp3" },
+            { name: "Birds Singing In A Forest", url: "Assets/BirdsSinging.mp3" }
         ];
 
-        const BELL_SOUND_URL = "Bell.mp3";
+        const BELL_SOUND_URL = "Assets/Bell.mp3";
 
         let selectedTrackIndex = 0;
         let bgAudio = new Audio();
@@ -1186,7 +1304,7 @@
         /* ============================================================
         GLOBAL APP STATE & PERSISTENCE
         ============================================================ */
-        const ACTIVE_PAGES = ['index.html', 'breathe.html', 'growth.html', 'safespace.html'];
+        const ACTIVE_PAGES = ['index.html', 'breathe.html', 'growth.html', 'safespace.html', 'setting.html', 'battle.html'];
 
         let appState = {
             currentScreen: 'screen-home',
@@ -1213,8 +1331,6 @@
         let journalLogs = JSON.parse(localStorage.getItem('ot_journal_logs') || '[]');
 
         // Global leaderboard state
-        let currentUserId = null;
-        let currentUsername = "";
         let leaderboardRawData = [];
         let leaderboardCurrentPage = 0;
         const ROWS_PER_PAGE = 10;
@@ -1334,7 +1450,18 @@
         /* ============================================================
         SUPABASE AUTHENTICATION & LEADERBOARD
         ============================================================ */
+        let currentUserId = null;
+        let currentUsername = "";
 
+        // Application State
+        const state = {
+        username: "Anonymous User",
+        // displayId: "",
+        avatar: "🐱",
+        tempSelectedAvatar: "🐱",
+        //notifications: false,
+        //language: "en"
+        };
         /**
          * PHASE 1: AUTOMATIC ANONYMOUS SIGN-IN
          */
@@ -1371,10 +1498,28 @@
                 }
 
                 currentUserId = user.id;
-                currentUsername = user.user_metadata.display_name || "Anonymous User";
-                console.log(`Authenticated as: ${currentUsername} (${currentUserId})`);
-                
-                await fetchGlobalLeaderboard();
+                // Check your custom leaderboard table FIRST to see if the user changed their name!
+            let { data: customProfile } = await db
+            .from('leaderboard')
+            .select('username')
+            .eq('id', currentUserId)
+            .maybeSingle();
+            
+            // If they updated their name in the table, load it. Otherwise, fallback to the original default.
+            state.username = customProfile ? customProfile.username : (user.user_metadata.display_name || "Anonymous User");
+            state.displayId = currentUserId.substring(0, 8); // Safe string parsing extraction bounds
+            console.log(`Authenticated as: ${state.username} (${state.displayId})`);
+            
+            // Render baseline identities onto UI fields instantly
+            const displayNode = document.getElementById('displayUsername');
+            const headerNode = document.getElementById('headerUsername');
+            const idNode = document.getElementById('displayId');
+            if (displayNode) displayNode.innerText = state.username;
+            if (headerNode) headerNode.innerText = state.username;
+            if (idNode) idNode.innerText = state.displayId;
+            console.log(`Session synchronized as: ${state.username} (${state.displayId})`);
+
+            await fetchGlobalLeaderboard();
 
             } catch (err) {
                 console.error("Authentication setup failed:", err.message);
@@ -1431,8 +1576,8 @@
             try {
                 const { data, error } = await db
                     .from('leaderboard')
-                    .select('username, total_time_spent')
-                    .eq('is_active', true) // FIX: Filter out the "soft deleted" users!
+                    .select('id, username, total_time_spent')
+                    .eq('is_active', true) // Filter out the "soft deleted" users.
                     .order('total_time_spent', { ascending: false })
                     .limit(50);
 
@@ -1500,7 +1645,7 @@
 
             footerNode.innerHTML = "";
 
-            const myGlobalIndex = leaderboardRawData.findIndex(row => row.username === currentUsername);
+            const myGlobalIndex = leaderboardRawData.findIndex(row => row.id === currentUserId);
             
             if (myGlobalIndex !== -1) {
                 const myData = leaderboardRawData[myGlobalIndex];
@@ -1508,7 +1653,7 @@
                 footerNode.appendChild(stickyRow);
             } else {
                 const currentMins = parseInt(localStorage.getItem('ot_total_minutes_spent')) || 0;
-                const fallbackRow = generateRowHtmlMarkup("??", currentUsername || "You", currentMins, true);
+                const fallbackRow = generateRowHtmlMarkup("??", state.username || "You", currentMins, true);
                 footerNode.appendChild(fallbackRow);
             }
         }
@@ -2059,66 +2204,6 @@
             `;
         }
 
-
-        /* ============================================================
-        MODAL HELPERS
-        ============================================================ */
-        function closeModal(modalId) {
-            stopSelectedAudio();
-            const targetModal = document.getElementById(modalId);
-            if (targetModal) {
-                targetModal.classList.remove('active');
-            }
-            if (modalId === 'modal-leaderboard-overlay') {
-                leaderboardCurrentPage = 0;
-            }
-        }
-
-        function closeModalOnOuterClick(e, modalId) {
-            if (e.target.id === modalId) {
-                stopSelectedAudio();
-                closeModal(modalId);
-            }
-        }
-
-        /* ============================================================
-        BOTTOM NAVIGATION
-        ============================================================ */
-        function initBottomNav() {
-            document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
-                const page = item.getAttribute('data-page');
-                if (!ACTIVE_PAGES.includes(page)) return;
-                item.addEventListener('click', () => {
-                    window.location.href = page;
-                });
-            });
-        }
-
-        /* ============================================================
-        INITIALISATION
-        ============================================================ */
-        window.onload = async function() {
-            updateUIVisualCounters();
-            initBottomNav();
-
-            // Initialize Supabase session
-            await initializeUserSession();
-
-            // Resume existing timer if active
-            let savedTarget = localStorage.getItem('ot_target_time');
-            if (savedTarget) {
-                let parsedTarget = parseInt(savedTarget);
-                if (parsedTarget > Date.now()) {
-                    appState.targetTimestamp = parsedTarget;
-                    navigateTo('screen-timer');
-                    playSelectedAudio();
-                    runLiveTimerLoop();
-                } else {
-                    localStorage.removeItem('ot_target_time');
-                }
-            }
-        };
-
         /* ============================================================
         HANDLE REFLECTION & OUTCOME (UNCHANGED)
         ============================================================ */
@@ -2180,6 +2265,95 @@
             appState.currentTrackMode = 'extended';
             startTimerSession();
         }
+
+        /* ============================================================
+        MODAL HELPERS
+        ============================================================ */
+        
+        /* --- Modal Controls --- */
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        //function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        // function closeModalOnOuterClick(e, id) {
+        // if (e.target.id === id) closeModal(id);
+        // }
+
+        /* --- Test Case 1: Avatar & Username Editing & Copying ID --- */
+        function openAvatarModal() {
+        state.tempSelectedAvatar = state.avatar;
+        openModal('avatarModal');
+        }
+
+        function selectAvatarOption(element, catEmoji) {
+        document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+        state.tempSelectedAvatar = catEmoji;
+        }
+
+        function saveAvatar() {
+        state.avatar = state.tempSelectedAvatar;
+        document.getElementById('headerAvatar').innerText = state.avatar;
+        //document.getElementById('mainAvatarDisplay').innerText = state.avatar;
+        closeModal('avatarModal');
+        //showToast("Avatar updated successfully!");
+        }
+
+        function closeModal(modalId) {
+            stopSelectedAudio();
+            const targetModal = document.getElementById(modalId);
+            if (targetModal) {
+                targetModal.classList.remove('active');
+            }
+            if (modalId === 'modal-leaderboard-overlay') {
+                leaderboardCurrentPage = 0;
+            }
+        }
+
+        function closeModalOnOuterClick(e, modalId) {
+            if (e.target.id === modalId) {
+                stopSelectedAudio();
+                closeModal(modalId);
+            }
+        }
+
+        /* ============================================================
+        BOTTOM NAVIGATION
+        ============================================================ */
+        function initBottomNav() {
+            document.querySelectorAll('.bottom-nav .nav-item, .settings-icon-btn').forEach(item => {
+                const page = item.getAttribute('data-page');
+                if (!ACTIVE_PAGES.includes(page)) return;
+                item.addEventListener('click', () => {
+                    window.location.href = page;
+                });
+            });
+        }
+
+        /* ============================================================
+        INITIALISATION
+        ============================================================ */
+        window.onload = async function() {
+            updateUIVisualCounters();
+            initBottomNav();
+
+            // Initialize Supabase session
+            await initializeUserSession();
+
+            // Resume existing timer if active
+            let savedTarget = localStorage.getItem('ot_target_time');
+            if (savedTarget) {
+                let parsedTarget = parseInt(savedTarget);
+                if (parsedTarget > Date.now()) {
+                    appState.targetTimestamp = parsedTarget;
+                    navigateTo('screen-timer');
+                    playSelectedAudio();
+                    runLiveTimerLoop();
+                } else {
+                    localStorage.removeItem('ot_target_time');
+                }
+            }
+        };
+
+        
     </script>
 </body>
 </html>
