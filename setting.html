@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purrfect Peace</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>         
+  <script src="Assets/config.js"></script>
+  <style>
+    /* ==========================================
+       1. COLOR SCHEME & BASE STYLES
+       ========================================== */
+    :root {
+      --bg-sky: #9cd6f7;
+      --nav-bg: #f7f3e3;
+      --card-brown: #7c533c;
+      --panel-bg: #ded5b3;
+      --text-dark: #422312;
+      --text-muted: #ddcdc9;
+      --accent-blue: #0288d1;
+      --btn-teal: #007676;
+      --btn-red: #ba1a1a;
+      --card-border-radius: 28px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Fredoka', 'Quicksand', 'Nunito', system-ui, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: #e0f2fe;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    /* --- 2. MOBILE CONTAINER --- */
+    .phone-container {
+        width: 100%;
+        max-width: 412px;
+        height: 90vh;
+        max-height: 892px;
+        background: linear-gradient(to bottom, var(--bg-sky), #bfe3f7);
+        border-radius: 40px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* --- 3. APP BAR HEADER --- */
+    .app-header {
+        padding: 20px 24px 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #0d4f75;
+    }
+
+    .avatar-mini {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background-color: #f7d6c8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      border: 2px solid var(--card-brown);
+      cursor: pointer;
+    }
+
+    .header-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1b4965;
+    }
+
+    .settings-icon-btn {
+        font-size: 1.5rem;
+        cursor: pointer;
+        opacity: 0.7;
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      padding: 16px;
+      position: relative;
+      overflow-y: auto;
+      /* display: flex;
+      flex-direction: column;
+      align-items: center; */
+    }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      height: 72px;
+      background-color: var(--nav-bg);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: env(safe-area-inset-bottom);
+      flex-shrink: 0;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #8c8269;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .nav-item.active {
+      color: #0a6999;
+    }
+
+    .nav-icon {
+      font-size: 1.4rem;
+      margin-bottom: 2px;
+    }
+
+    /* ==========================================
+       3. SETTINGS & EVALUATE MAIN PANEL
+       ========================================== */
+    .settings-card {
+      width: 100%;
+      background-color: var(--card-brown);
+      border-radius: var(--card-border-radius);
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+      position: relative;
+    }
+
+    /* Profile Header inside Settings */
+    .profile-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .profile-avatar-wrapper {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background-color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 48px;
+      border: 3px solid #fff;
+      cursor: pointer; 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .edit-badge {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: var(--accent-blue);
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      border: 2px solid white;
+      cursor: pointer;
+    }
+
+    .profile-username-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      color: var(--text-dark);
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .profile-id-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .action-icon {
+      cursor: pointer;
+      opacity: 0.8;
+      transition: transform 0.1s;
+    }
+
+    .action-icon:active {
+      transform: scale(0.9);
+    }
+
+    /* Panel Buttons */
+    .panel-btn {
+      background-color: var(--panel-bg);
+      border-radius: 16px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-dark);
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .panel-btn.disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background-color: #ccc;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .toggle-switch.on {
+      background-color: #1b4965;
+    }
+
+    .toggle-handle {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background-color: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    .toggle-switch.on .toggle-handle {
+      left: 22px;
+    }
+
+    .delete-acc-btn {
+      margin-top: 8px;
+      background: none;
+      border: none;
+      color: #b71c1c;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 8px;
+      text-align: center;
+    }
+
+    /* Decorative Kitten Watermark */
+    .kitten-watermark {
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      font-size: 40px;
+      opacity: 0.25;
+      pointer-events: none;
+    }
+
+    /* ==========================================
+       4. MODALS & POPUPS
+       ========================================== */
+    .overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0,0,0,0.4);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      padding: 16px;
+    }
+
+    .overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      background-color: var(--card-brown);
+      border-radius: 24px;
+      padding: 20px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: var(--text-dark);
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--text-dark);
+    }
+
+    /* Avatar Grid */
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      width: 100%;
+      margin: 8px 0;
+    }
+
+    .avatar-option {
+      background: var(--panel-bg);
+      border-radius: 16px;
+      padding: 12px;
+      font-size: 36px;
+      text-align: center;
+      cursor: pointer;
+      border: 3px solid transparent;
+    }
+
+    .avatar-option.selected {
+      border-color: var(--btn-teal);
+    }
+
+    /* Buttons */
+    .modal-btn-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 16px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-teal { background-color: var(--btn-teal); color: white; }
+    .btn-red { background-color: var(--btn-red); color: white; }
+    .btn-cancel { background-color: var(--panel-bg); color: var(--text-dark); }
+
+    /* Custom Virtual Keyboard Styling */
+    .keyboard-container {
+      position: absolute;
+      bottom: 0;
+      left: 0; right: 0;
+      background: #d0d5dd;
+      padding: 10px 6px;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 20;
+    }
+
+    .keyboard-container.active { display: flex; }
+
+    .input-bar-row {
+      display: flex;
+      gap: 6px;
+      background: white;
+      padding: 6px 10px;
+      border-radius: 12px;
+      margin-bottom: 4px;
+      align-items: center;
+    }
+
+    .edit-input {
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 0.95rem;
+      background: transparent;
+    }
+
+    .keyboard-row {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .key {
+      background: white;
+      border: none;
+      padding: 8px 0;
+      flex: 1;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: absolute;
+      top: 70px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      display: none;
+      z-index: 30;
+    }
+
+    /* Warning Icon Badge */
+    .warning-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #f8d7da;
+      color: #721c24;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="phone-container">
+    <!-- Toast Message -->
+    <div id="toast" class="toast">Copied to clipboard!</div>
+
+    <!-- Header -->
+    <div class="app-header">
+      <div class="brand">
+        <div id="headerAvatar" class="avatar-mini" onclick="openAvatarModal()">🐱</div>
+        <div id="headerUsername" class="header-title"></div>
+      </div>
+      <div class="settings-icon-btn" data-page="setting.html">⚙️</div>
+    </div>
+
+    <!-- Main Content Area (Settings Page View) -->
+    <div class="main-content">
+      <div class="settings-card">
+        
+        <!-- Profile Info -->
+        <div class="profile-section">
+          <div class="profile-avatar-wrapper" onclick="openAvatarModal()">
+            <span id="mainAvatarDisplay">🐱</span>
+            <div class="edit-badge">✏️</div>
+          </div>
+
+          <div class="profile-username-row">
+            <span id="displayUsername"></span>
+            <span class="action-icon" onclick="openKeyboard()">✏️</span>
+          </div>
+
+          <div class="profile-id-row">
+            <span>ID: <span id="displayId"></span></span>
+            <span class="action-icon" onclick="copyIdToClipboard()">📋</span>
+          </div>
+        </div>
+
+        <!-- Options Panels -->
+        <button class="panel-btn disabled">
+          <span class="lang-faq">FAQ</span> <span>❯</span>
+        </button>
+
+        <button class="panel-btn disabled">
+          <span class="lang-privacy">Privacy Policy</span> <span>❯</span>
+        </button>
+
+        <button class="panel-btn disabled">
+          <span class="lang-about">About Us</span> <span>❯</span>
+        </button>
+
+        <button class="panel-btn" onclick="openLanguageModal()">
+          <span class="lang-language">Language</span> 
+          <span id="selectedLangDisplay" style="opacity: 0.6; font-size: 0.85rem;">English ❯</span>
+        </button>
+
+        <!-- <button class="panel-btn" onclick="openLanguageModal()">
+          <span class="admin-panel">Sign-in as Admin</span> 
+        </button> -->
+
+        <div class="panel-btn">
+          <span class="lang-notification">Notification</span>
+          <div id="notifToggle" class="toggle-switch" onclick="toggleNotification()">
+            <div class="toggle-handle"></div>
+          </div>
+        </div>
+
+        <button class="delete-acc-btn lang-delete" onclick="openDeleteModal()">Delete Account</button>
+
+        <div class="kitten-watermark">🐱</div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-item"         data-page="breathe.html"><span class="nav-icon">🍃</span><span class="lang-nav-breathe">Breathe</span></div>
+      <div class="nav-item"         data-page="logs.html"><span class="nav-icon">📋</span><span class="lang-nav-logs">Logs</span></div>
+      <!-- <div class="nav-item" data-page="battle.html">   <span class="nav-icon">⚔️</span><span class="lang-nav-battle">Battle</span></div> -->
+      <div class="nav-item"         data-page="index.html"><span class="nav-icon">🏠</span><span class="lang-nav-home">Evaluate</span></div>
+      <div class="nav-item"  data-page="safespace.html"><span class="nav-icon">🐾</span><span class="lang-nav-safe">Safe Space</span></div>
+      <div class="nav-item"         data-page="growth.html"><span class="nav-icon">📈</span><span class="lang-nav-growth">Growth</span></div>
+    </div>
+
+    <!-- ==========================================
+         MODALS & OVERLAYS
+         ========================================== -->
+
+    <!-- Avatar Selection Modal -->
+    <div id="avatarModal" class="overlay" onclick="closeModalOnOuterClick(event, 'avatarModal')">
+      <div class="modal-box">
+        <button class="modal-close-btn" onclick="closeModal('avatarModal')">✖</button>
+        <div class="modal-title lang-choose-avatar">Choose Avatar</div>
+        
+        <div class="avatar-grid">
+          <div class="avatar-option selected" onclick="selectAvatarOption(this, '🐱')">🐱</div>
+          <div class="avatar-option" onclick="selectAvatarOption(this, '😸')">😸</div>
+          <div class="avatar-option" onclick="selectAvatarOption(this, '😼')">😼</div>
+          <div class="avatar-option" onclick="selectAvatarOption(this, '😽')">😽</div>
+        </div>
+
+        <div class="modal-btn-row">
+          <button class="btn btn-teal lang-save" onclick="saveAvatar()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Language Modal -->
+    <div id="languageModal" class="overlay" onclick="closeModalOnOuterClick(event, 'languageModal')">
+      <div class="modal-box">
+        <button class="modal-close-btn" onclick="closeModal('languageModal')">✖</button>
+        <div class="modal-title lang-select-lang">Select Language</div>
+
+        <button class="panel-btn" style="width:100%" onclick="setLanguage('en')">English</button>
+        <button class="panel-btn" style="width:100%" onclick="setLanguage('ms')">Malay</button>
+        <button class="panel-btn" style="width:100%" onclick="setLanguage('ko')">한국어</button>
+      </div>
+    </div>
+
+    <!-- Delete Account Modal -->
+    <div id="deleteModal" class="overlay" onclick="closeModalOnOuterClick(event, 'deleteModal')">
+      <div class="modal-box">
+        <button class="modal-close-btn" onclick="closeModal('deleteModal')">✖</button>
+        <div class="warning-icon">!</div>
+        <div class="modal-title lang-delete-title">Delete Account?</div>
+        
+        <p style="font-size:0.75rem; text-align:center; opacity:0.8;" class="lang-delete-msg">
+          Delete your account permanently, any purchase made cannot be restored. This cannot be reverted.
+        </p>
+
+        <button class="btn btn-red lang-delete-perm" onclick="confirmDeleteAccount()">DELETE PERMANENTLY</button>
+        <button class="btn btn-cancel lang-cancel" onclick="closeModal('deleteModal')">CANCEL</button>
+      </div>
+    </div>
+
+    <!-- Virtual On-Screen Keyboard for Editing Username -->
+    <div id="keyboardOverlay" class="keyboard-container">
+      <div class="input-bar-row">
+        <input type="text" id="usernameInput" class="edit-input" placeholder="New username">
+        <span class="action-icon" style="color:var(--btn-red);" onclick="closeKeyboard()">✖</span>
+        <span class="action-icon" style="color:var(--btn-teal); font-weight:bold;" onclick="saveUsername()">✔️</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==========================================
+       5. JAVASCRIPT LOGIC
+       ========================================== -->
+  <script>
+    /* ============================================================
+    GLOBAL CONTEXT CONFIGURATION & APPLICATION STATE
+    ============================================================ */
+    let currentUserId = null;
+    let currentUsername = "";
+
+    // Application State
+    const state = {
+      username: "Anonymous User",
+      displayId: "",
+      avatar: "🐱",
+      tempSelectedAvatar: "🐱",
+      notifications: false,
+      language: "en"
+    };
+
+    /* ============================================================
+    SUPABASE CONFIGURATION — REPLACE WITH YOUR ACTUAL CREDENTIALS
+    ============================================================ */
+    const db = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+    
+    async function initializeUserSession() {
+      try {
+            let { data: { user } } = await db.auth.getUser();
+
+            if (!user) {
+                const adjectives = ["Calm", "Chilled", "Serene", "Peaceful", "Gentle", "Mellow", "Tranquil"];
+                const animals = ["Kitten", "Panda", "Koala", "Otter", "Sloth", "Fox", "Bunny"];
+                const randomName = adjectives[Math.floor(Math.random() * adjectives.length)] + 
+                                    animals[Math.floor(Math.random() * animals.length)] + 
+                                    Math.floor(100 + Math.random() * 900);
+
+                const { data, error } = await db.auth.signInAnonymously({
+                    options: { data: { display_name: randomName } }
+                });
+
+                if (error) throw error;
+                user = data.user;
+                
+                // Check if user already exists in leaderboard
+                // if (existing) {
+                //     await db.from('leaderboard').insert([
+                //         { id: user.id, username: setName }
+                //     ]);
+                // }
+                // Check if user already exists in leaderboard table
+                let { data: existing } = await db
+                    .from('leaderboard')
+                    .select('id')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                if (!existing) {
+                    await db.from('leaderboard').insert([
+                        { id: user.id, username: randomName}
+                    ]);
+                }
+
+
+                if (!existing) {
+                    await db.from('leaderboard').insert([
+                        { id: user.id, username: randomName}
+                    ]);
+                }
+            }
+
+            currentUserId = user.id;
+            // Check your custom leaderboard table FIRST to see if the user changed their name!
+            let { data: customProfile } = await db
+            .from('leaderboard')
+            .select('username')
+            .eq('id', currentUserId)
+            .maybeSingle();
+            
+            // If they updated their name in the table, load it. Otherwise, fallback to the original default.
+            state.username = customProfile ? customProfile.username : (user.user_metadata.display_name || "Anonymous User");
+            state.displayId = currentUserId.substring(0, 8); // Safe string parsing extraction bounds
+            console.log(`Authenticated as: ${state.username} (${state.displayId})`);
+            
+            // Render baseline identities onto UI fields instantly
+            const displayNode = document.getElementById('displayUsername');
+            const headerNode = document.getElementById('headerUsername');
+            const idNode = document.getElementById('displayId');
+            if (displayNode) displayNode.innerText = state.username;
+            if (headerNode) headerNode.innerText = state.username;
+            if (idNode) idNode.innerText = state.displayId;
+            console.log(`Session synchronized as: ${state.username} (${state.displayId})`);
+        } catch (err) {
+            console.error("Authentication setup failed:", err.message);
+        }
+    }
+
+    // Language Dictionary
+    const translations = {
+      en: {
+        faq: "FAQ",
+        privacy: "Privacy Policy",
+        about: "About Us",
+        language: "Language",
+        notification: "Notification",
+        deleteAcc: "Delete Account",
+        breathe: "Breathe",
+        logs: "Logs",
+        battle: "Battle",
+        home: "Home",
+        safe: "Safe Space",
+        growth: "Growth",
+        chooseAvatar: "Choose Avatar",
+        save: "Save",
+        selectLang: "Select Language",
+        deleteTitle: "Delete Account?",
+        deleteMsg: "Delete your account permanently, any purchase made cannot be restored. This cannot be reverted.",
+        deletePerm: "DELETE PERMANENTLY",
+        cancel: "CANCEL"
+      },
+      ms: {
+        faq: "Soalan Lazim",
+        privacy: "Dasar Privasi",
+        about: "Mengenai Kami",
+        language: "Bahasa",
+        notification: "Pemberitahuan",
+        deleteAcc: "Padam Akaun",
+        breathe: "Nafas",
+        logs: "Log",
+        battle: "Pertempuran",
+        home: "Utama",
+        safe: "Ruang Selamat",
+        growth: "Kemajuan",
+        chooseAvatar: "Pilih Avatar",
+        save: "Simpan",
+        selectLang: "Pilih Bahasa",
+        deleteTitle: "Padam Akaun?",
+        deleteMsg: "Padam akaun anda secara kekal, sebarang pembelian tidak boleh dipulihkan. Ini tidak boleh diubah.",
+        deletePerm: "PADAM KEKAL",
+        cancel: "BATAL"
+      },
+      ko: {
+        faq: "자주 묻는 질문",
+        privacy: "개인정보 처리방침",
+        about: "회사 소개",
+        language: "언어",
+        notification: "알림",
+        deleteAcc: "계정 삭제",
+        breathe: "호흡",
+        logs: "기록",
+        battle: "전투",
+        home: "홈",
+        safe: "안전",
+        growth: "성장",
+        chooseAvatar: "아바타 선택",
+        save: "저장",
+        selectLang: "언어 선택",
+        deleteTitle: "계정을 삭제하시겠습니까?",
+        deleteMsg: "계정을 영구적으로 삭제하면 구매 내역을 복구할 수 없습니다. 이 작업은 되돌릴 수 없습니다.",
+        deletePerm: "영구 삭제",
+        cancel: "취소"
+      }
+    };
+
+    /* --- Modal Controls --- */
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function closeModalOnOuterClick(e, id) {
+      if (e.target.id === id) closeModal(id);
+    }
+
+    /* --- Test Case 1: Avatar & Username Editing & Copying ID --- */
+    function openAvatarModal() {
+      state.tempSelectedAvatar = state.avatar;
+      openModal('avatarModal');
+    }
+
+    function selectAvatarOption(element, catEmoji) {
+      document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+      element.classList.add('selected');
+      state.tempSelectedAvatar = catEmoji;
+    }
+
+    function saveAvatar() {
+      state.avatar = state.tempSelectedAvatar;
+      document.getElementById('headerAvatar').innerText = state.avatar;
+      document.getElementById('mainAvatarDisplay').innerText = state.avatar;
+      closeModal('avatarModal');
+      showToast("Avatar updated successfully!");
+    }
+
+    function openKeyboard() {
+      document.getElementById('usernameInput').value = state.username;
+      document.getElementById('keyboardOverlay').classList.add('active');
+    }
+
+    function closeKeyboard() {
+      document.getElementById('keyboardOverlay').classList.remove('active');
+    }
+
+    function typeKey(char) {
+      document.getElementById('usernameInput').value += char;
+    }
+
+    // Trigger POST/PUT/PATCH request to sync username with Leaderboard
+    function saveUsername() {
+      const newName = document.getElementById('usernameInput').value.trim();
+      if (!newName) return;
+
+      db.from('leaderboard').upsert({ id: currentUserId, username: newName })
+      .then(res => {
+        state.username = newName;
+        document.getElementById('displayUsername').innerText = state.username;
+        document.getElementById('headerUsername').innerText = state.username;
+        closeKeyboard();
+        showToast("Username updated & synced!");
+      })
+      .catch(err => {
+        console.error("Database upsert failed:", err.message);
+        // Safe structural fallback values strategy
+        state.username = newName;
+        document.getElementById('displayUsername').innerText = state.username;
+        document.getElementById('headerUsername').innerText = state.username;
+        closeKeyboard();
+        showToast("Username updated!");
+      });
+    }
+
+    function copyIdToClipboard() {
+      navigator.clipboard.writeText(state.fullId).then(() => {
+        showToast("ID copied to clipboard!");
+      }).catch(() => {
+        showToast("ID copied!");
+      });
+    }
+
+    /* --- Test Case 2: Delete Account --- */
+    function openDeleteModal() { openModal('deleteModal'); }
+    
+    async function confirmDeleteAccount() {
+      closeModal('deleteModal');
+      
+      if (!currentUserId) {
+        showToast("No active user session found.");
+        return;
+      }
+
+      try {
+        // Step 1: Delete data from your custom leaderboard table
+        const { error: dbError } = await db
+          .from('leaderboard')
+          .delete()
+          .eq('id', currentUserId);
+
+        if (dbError) throw dbError;
+
+        // Step 2: Trigger the secure database function to delete Auth record
+        const { error: authError } = await db.rpc('delete_user_account');
+        if (authError) throw authError;
+
+        // Step 3: Clear local session tokens and reset UI
+        await db.auth.signOut();
+        
+        showToast("Account successfully deleted.");
+        
+        // Refresh page to generate a brand new anonymous session
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+
+      } catch (err) {
+        console.error("Failed to delete account:", err.message);
+        showToast("Error deleting account. Try again.");
+      }
+    }
+
+
+    /* --- Test Case 3: Notification Toggle --- */
+    function toggleNotification() {
+      state.notifications = !state.notifications;
+      const toggle = document.getElementById('notifToggle');
+      if (state.notifications) {
+        toggle.classList.add('on');
+        showToast("Notifications Enabled");
+      } else {
+        toggle.classList.remove('on');
+        showToast("Notifications & Alerts Blocked");
+      }
+    }
+
+    /* --- Test Case 4: Language Switcher --- */
+    function openLanguageModal() { openModal('languageModal'); }
+    
+    function setLanguage(langCode) {
+      state.language = langCode;
+      const lang = translations[langCode];
+
+      // Update static UI elements
+      document.querySelector('.lang-faq').innerText = lang.faq;
+      document.querySelector('.lang-privacy').innerText = lang.privacy;
+      document.querySelector('.lang-about').innerText = lang.about;
+      document.querySelector('.lang-language').innerText = lang.language;
+      document.querySelector('.lang-notification').innerText = lang.notification;
+      document.querySelector('.lang-delete').innerText = lang.deleteAcc;
+
+      document.querySelector('.lang-nav-breathe').innerText = lang.breathe;
+      document.querySelector('.lang-nav-logs').innerText = lang.logs;
+      document.querySelector('.lang-nav-battle').innerText = lang.battle;
+      document.querySelector('.lang-nav-home').innerText = lang.home;
+      document.querySelector('.lang-nav-safe').innerText = lang.safe;
+      document.querySelector('.lang-nav-growth').innerText = lang.growth;
+
+      document.querySelector('.lang-choose-avatar').innerText = lang.chooseAvatar;
+      document.querySelector('.lang-save').innerText = lang.save;
+      document.querySelector('.lang-select-lang').innerText = lang.selectLang;
+      document.querySelector('.lang-delete-title').innerText = lang.deleteTitle;
+      document.querySelector('.lang-delete-msg').innerText = lang.deleteMsg;
+      document.querySelector('.lang-delete-perm').innerText = lang.deletePerm;
+      document.querySelector('.lang-cancel').innerText = lang.cancel;
+
+      const langNames = { en: "English", ms: "Malay", ko: "한국어" };
+      document.getElementById('selectedLangDisplay').innerText = `${langNames[langCode]} ❯`;
+
+      closeModal('languageModal');
+    }
+
+    /* Helper: Toast Message */
+    function showToast(text) {
+      const toast = document.getElementById('toast');
+      toast.innerText = text;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2000);
+    }
+
+    /* ============================================================
+    BOTTOM NAVIGATION
+    ============================================================ */
+    function initBottomNav() {
+        document.querySelectorAll('.bottom-nav .nav-item, .settings-icon-btn').forEach(item => {
+            const page = item.getAttribute('data-page');
+            if (!ACTIVE_PAGES.includes(page)) return;
+            item.addEventListener('click', () => {
+                window.location.href = page;
+            });
+        });
+    }
+
+    // Initialize Bottom Nav on page load
+    const ACTIVE_PAGES = ['index.html', 'breathe.html', 'growth.html', 'safespace.html', 'setting.html', 'battle.html'];    
+    /* ============================================================
+    INITIALISATION
+    ============================================================ */
+    window.onload = async function() {
+        initBottomNav();
+
+        // Initialize Supabase session
+        await initializeUserSession();
+        
+    };
+
+  </script>
+</body>
+</html>
